@@ -34,10 +34,11 @@
 (setq twittering-username "yoheia")
 
 ;; Telnet
-(setq telnet-program "c:/meadow3/bin/telnet.exe")
-(add-hook 'telnet-mode-hook '_telnet-mode)
-(defun _telnet-mode ()
-  (set-buffer-process-coding-system 'euc-japan 'sjis-unix))
+;;(setq telnet-program "c:/meadow3/bin/telnet.exe")
+;;(add-hook 'telnet-mode-hook '_telnet-mode)
+;;(defun _telnet-mode ()
+;;(set-buffer-process-coding-system 'euc-japan 'sjis-unix))
+;;  (set-buffer-process-coding-system 'undecided-dos 'euc-japan))
 
 
 ;; 全角スペースを「□」として表示する。
