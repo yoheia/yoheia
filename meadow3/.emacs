@@ -39,17 +39,18 @@
 (defun _telnet-mode ()
   (set-buffer-process-coding-system 'euc-japan 'sjis-unix))
 
+
 ;; 全角スペースを「□」として表示する。
 (require 'jaspace)
+
 
 ;;Cygwin
 (setq explicit-shell-file-name "bash.exe")
 (setq shell-file-name "sh.exe")
 (setq shell-command-switch "-c")
-(modify-coding-system-alist 'process ".*sh\\.exe" '(undecided-dos . euc-japan))
+(modify-coding-system-alist 'process ".*sh\\.exe" '(undecided-dos . euc-jp-unix))
 ;; argument-editing の設定
 (require 'mw32script)
 (mw32script-init)
 (setq exec-suffix-list '(".exe" ".sh" ".pl"))
 (setq shell-file-name-chars "~/A-Za-z0-9_^$!#%&{}@`'.:()-")
-
