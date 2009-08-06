@@ -73,5 +73,3 @@ PID=${SH_PID}
 
  
 done
-
-
