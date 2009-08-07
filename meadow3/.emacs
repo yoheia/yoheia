@@ -1,4 +1,6 @@
 (modify-coding-system-alist 'file "\\.pl$" 'euc-jp-unix)
+(modify-coding-system-alist 'file "\\.sql$" 'euc-jp-unix)
+(modify-coding-system-alist 'file "\\.sh$" 'euc-jp-unix)
 
 (if (boundp 'window-system)
     (setq initial-frame-alist
@@ -34,14 +36,6 @@
 ;; Twitter
 (require 'twittering-mode)
 (setq twittering-username "yoheia")
-
-
-;;tramp
-(setq-default tramp-default-method "plink")
-(setq-default tramp-completion-without-shell-p t)
-(setq-default tramp-shell-prompt-pattern "^[ $]+")
-(setq-default tramp-debug-buffer t)
-(modify-coding-system-alist 'process "plink" 'euc-jp-unix)
 
 ;; Telnet
 ;;(setq telnet-program "c:/meadow3/bin/telnet.exe")
