@@ -37,7 +37,7 @@ vmstat ${IVAL} ${DURATION} > ${DIR}/${DATE}.vmstat.log &
 PID="$! ${PID}" # $!: The PID of last process started in background 
  
 # swapinfo
-swapinfo -a ${IVAL} ${DURATION} > ${DIR}/${DATE}.swapinfo.log &
+swapinfo -a > ${DIR}/${DATE}.swapinfo.log &
 PID="$! ${PID}"
  
 # iostat
