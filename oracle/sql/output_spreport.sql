@@ -18,3 +18,5 @@ spool statsall_a.sql
  ;
 spool off
 @statsall_a.sql
+
+exit
