@@ -12,6 +12,9 @@ DIR=`dirname $0`/log
 PLATFORM=`uname`
 COMMENT=$@
 
+SH_PID=$$
+PID=${SH_PID}
+
 if [ ! -d ${DIR} ]
 	then mkdir ${DIR}
 fi
@@ -32,6 +35,7 @@ do
 		sleep $IVAL
 		COUNT=`expr $COUNT1 + 1`
 	done &
+	PID="$! ${PID}"
 
 	# ps -ef
 	COUNT2=0
@@ -41,6 +45,7 @@ do
 		sleep $IVAL
 		COUNT=`expr $COUNT2 + 1`
 	done &
+	PID="$! ${PID}"
 
 	# vmstat
 	vmstat ${IVAL} ${DURATION} | \
@@ -64,6 +69,7 @@ do
 	case $PLATFORM in "HP-UX")
 		# top -n <number of output lines> -s <interval> -d <count> 
 		top -n 50 -s ${IVAL} -d ${DURATION} -f ${DIR}/${DATE}.top.log &
+		PID="$! ${PID}"
 		# iostat
 		iostat -t ${IVAL} ${DURATION} |\
 			while read line; do echo `date '+%H:%M:%S'` $line; done \
@@ -84,6 +90,7 @@ do
 		prstat -n 50 ${IVAL} ${DURATION} | \
 			while read line; do echo `date '+%H:%M:%S'` $line; done \
 			> ${DIR}/${DATE}.prstat.log &
+		PID="$! ${PID}"
 		# vmstat -p
 		# -p: report paging activity in details.
 		vmstat -p ${IVAL} ${DURATION} | \
@@ -113,6 +120,9 @@ do
 		PID="$! ${PID}"
 	esac
 
+	trap "echo 'script done'; kill -9 ${PID}" 2 3 9 15
+
 	sleep ${DURATION}
+	PID=${SH_PID}
 
 done
