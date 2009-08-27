@@ -1,3 +1,12 @@
+# LANG
+export LANG=C
+
+# see manual umask
+umask 022
+	
+# core dump size
+limit coredumpsize 0
+
 # Autocomplete
 autoload -U compinit
 compinit
@@ -36,20 +45,13 @@ zle -N history-beginning-search-forward-end history-search-end
 bindkey "^P" history-beginning-search-backward-end
 bindkey "^N" history-beginning-search-forward-end
 
-# Change directory when only path typed
-setopt auto_cd
-
-# d -[Tab] --> list history 
-setopt auto_pushd
-
-# Correct command
-setopt correct
-
-# Display packed list
-setopt list_packed 
-
-# Beep off
-setopt nolistbeep
+# see manual zshoptions(1)
+setopt AUTO_CD     # Change directory when only path typed
+setopt AUTO_PUSHD  # d -[Tab] --> list history 
+setopt CORRECT     # Correct command
+setopt LIST_PACKED # Display packed list
+setopt NOLISTBEEP  # Beep off
+setopt SHORTLOOPS
 
 # Alias
 alias la='ls -AFlh'
@@ -58,11 +60,35 @@ alias l=ls
 alias df='df -h'
 alias p=pushd pp=popd
 alias j=jobs
+alias h=history
+alias x=exit
+alias df='df -h'
+alias du='du -h'
+alias tf='tail -f'
+alias c='clear'
+alias mv='nocorrect mv'
+alias cp='nocorrect cp'
+alias rm='rm -i'
+alias ps='ps -ef'
 
-# Oracle
-alias ob='cd $ORACLE_BASE'
-alias oi='cd $ORACLE_BASE/oraInventory'
-alias oh='cd $ORACLE_HOME'
-alias od='cd $ORACLE_BASE/oradata/orcl'
-export LANG=C
-export NLS_LANG=American_America.JA16EUC
+export PAGER=less
+export OSTYPE=`uname -s`
+
+# load platform configuration
+case $OSTYPE in
+    Linux*)
+	[ -r $HOME/.zshrc.linux ] && source $HOME/.zshrc.linux
+	;;
+    FreeBSD*)
+	[ -r $HOME/.zshrc.freebsd ] && source $HOME/.zshrc.freebsd
+	;;
+    Darwin*)
+	[ -r $HOME/.zshrc.darwin ] && source $HOME/.zshrc.darwin
+	;;
+    SunOS*)
+	[ -r $HOME/.zshrc.solaris ] && source $HOME/.zshrc.solaris
+	;;
+esac
+
+# load local configuration
+[ -r $HOME/.zshrc.local ] && source $HOME/.zshrc.local

@@ -1,0 +1,8 @@
+# Oracle
+export NLS_LANG=American_America.JA16EUC
+cdpath=(~ $ORACLE_BASE $ORACLE_HOME)
+
+alias ob='cd $ORACLE_BASE'
+alias oi='cd $ORACLE_BASE/oraInventory'
+alias oh='cd $ORACLE_HOME'
+alias od='cd $ORACLE_BASE/oradata/orcl'
