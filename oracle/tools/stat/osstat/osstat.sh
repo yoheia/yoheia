@@ -28,24 +28,24 @@ do
 	echo ${COMMENT} > ${DIR}/${DATE}.about.txt
 
 	# netstat -na
-	COUNT1=0
-	while [ $COUNT1 -lt $DURATION ]
-	do
-		(echo `date '+%H:%M:%S'`;netstat -na) >> ${DIR}/${DATE}.netstat-na.log
-		sleep $IVAL
-		COUNT=`expr $COUNT1 + 1`
-	done &
-	PID="$! ${PID}"
+#	COUNT1=0
+#	while [ $COUNT1 -lt $DURATION ]
+#	do
+#		(echo `date '+%H:%M:%S'`;netstat -na) >> ${DIR}/${DATE}.netstat-na.log
+#		sleep $IVAL
+#		COUNT=`expr $COUNT1 + 1`
+#	done &
+#	PID="$! ${PID}"
 
 	# ps -ef
-	COUNT2=0
-	while [ $COUNT2 -lt $DURATION ]
-	do
-		(echo `date '+%H:%M:%S'`;ps -ef) >> ${DIR}/${DATE}.ps-ef.log
-		sleep $IVAL
-		COUNT=`expr $COUNT2 + 1`
-	done &
-	PID="$! ${PID}"
+#	COUNT2=0
+#	while [ $COUNT2 -lt $DURATION ]
+#	do
+#		(echo `date '+%H:%M:%S'`;ps -ef) >> ${DIR}/${DATE}.ps-ef.log
+#		sleep $IVAL
+#		COUNT=`expr $COUNT2 + 1`
+#	done &
+#	PID="$! ${PID}"
 
 	# vmstat
 	vmstat ${IVAL} ${DURATION} | \
@@ -81,8 +81,8 @@ do
 			> ${DIR}/${DATE}.sar-A.log &
 		PID="$! ${PID}"
 		# netstat -s
-		netstat -s > ${DIR}/${DATE}.netstat-s.log &
-		PID="$! ${PID}"
+#		netstat -s > ${DIR}/${DATE}.netstat-s.log &
+#		PID="$! ${PID}"
 	esac
 	# Solaris
 	case $PLATFORM in "SunOS")
@@ -114,10 +114,10 @@ do
 			> ${DIR}/${DATE}.mpstat.log &
 		PID="$! ${PID}"
 		# netstat
-		netstat -s ${IVAL} ${DURATION} |\
-			while read line; do echo `date '+%H:%M:%S'` $line; done \
-			> ${DIR}/${DATE}.netstat.log &
-		PID="$! ${PID}"
+#		netstat -s ${IVAL} ${DURATION} |\
+#			while read line; do echo `date '+%H:%M:%S'` $line; done \
+#			> ${DIR}/${DATE}.netstat.log &
+#		PID="$! ${PID}"
 	esac
 
 	trap "echo 'script done'; kill -9 ${PID}" 2 3 9 15

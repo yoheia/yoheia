@@ -1,6 +1,6 @@
 #!/bin/sh
 
-ORACLE_USER=oracle
+ORACLE_USER=oracle9
 LANG=C
 export LANG
 BASE_DIR=`cd \`dirname $0\`;pwd`

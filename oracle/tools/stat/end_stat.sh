@@ -1,15 +1,15 @@
 #!/bin/sh
 
-ORACLE_USER=oracle
+ORACLE_USER=oracle9
 LANG=C
 export LANG
 BASE_DIR=`cd \`dirname $0\`;pwd`
 
 # statspack: get snapshot
-su - ${ORACLE_USER} -c "${BASE_DIR}/statspack/snap.sh" > /dev/null 2>&1 &
+su - ${ORACLE_USER} -c "${BASE_DIR}/statspack/snap.sh" > /dev/null 2>&1
 
 # statspack: output report to file
-su - ${ORACLE_USER} -c "${BASE_DIR}/statspack/output_report.sh" > /dev/null 2>&1 &
+su - ${ORACLE_USER} -c "${BASE_DIR}/statspack/output_report.sh" > /dev/null 2>&1
 
 # kill following processes
 #  -osstat.sh

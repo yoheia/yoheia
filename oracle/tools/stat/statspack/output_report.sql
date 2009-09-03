@@ -10,12 +10,11 @@ spool statsall_a.sql
  chr(10) ||
  '@?/rdbms/admin/spreport.sql' || chr(10)
  from stats$snapshot
- /* Only the latest
+ --Only the latest
  where snap_id > 
      (select max(snap_id)-3 from stats$snapshot)
- order by snap_id
- */
- ;
+     and snap_id < (select max(snap_id) from stats$snapshot)
+ order by snap_id;
 spool off
 @statsall_a.sql
 
