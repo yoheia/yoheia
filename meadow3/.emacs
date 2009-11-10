@@ -12,14 +12,12 @@
                    '(cursor-color     . "white")
                    '(cursor-type      . box)
                    '(menu-bar-lines . 1)
-                   ;;15.2 フォントの設定 (2008/04/16) で設定したフォントを使用
-                   ;'(font . "my-fontset")
-                   ;; 東雲なら shinonome16-fontset などを指定
                    '(vertical-scroll-bars . nil) ;;スクロールバーはいらない
                    '(width . 100) ;; ウィンドウ幅
                    '(height . 35) ;; ウィンドウの高さ
                    '(top . 60) ;;表示位置
                    '(left . 140) ;;表示位置
+                   '(font . "MS Gothic 12") ;;フォント
                    )
                   initial-frame-alist)))
 (setq default-frame-alist initial-frame-alist)
@@ -59,7 +57,6 @@
 (mw32script-init)
 (setq exec-suffix-list '(".exe" ".sh" ".pl"))
 (setq shell-file-name-chars "~/A-Za-z0-9_^$!#%&{}@`'.:()-")
-
 
 ;;;
 ;;; sql-mode
