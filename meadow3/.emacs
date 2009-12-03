@@ -57,6 +57,9 @@
 (mw32script-init)
 (setq exec-suffix-list '(".exe" ".sh" ".pl"))
 (setq shell-file-name-chars "~/A-Za-z0-9_^$!#%&{}@`'.:()-")
+(setq mw32-process-wrapper-alist
+	'(("/\\(bash\\|tcsh\\|svn\\|ssh\\|gpg[esvk]?\\)\\.exe" .
+	(nil . ("fakecygpty.exe" . set-process-connection-type-pty)))))
 
 ;;;
 ;;; sql-mode
