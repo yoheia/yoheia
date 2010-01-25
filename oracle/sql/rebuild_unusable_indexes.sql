@@ -1,4 +1,3 @@
-----$Id:$
 define owner_name = &owner_name
 
 set echo off
@@ -16,7 +15,7 @@ select 'rebuild_unusable_indexes_'||lower('&&owner_name')||'_'||to_char(sysdate,
 
 spool &spool_file_name
 declare
-	cursor cu is select owner, index_name from dba_indexes where owner = upper('&&owner_name');
+	cursor cu is select owner, index_name from dba_indexes where owner = upper('&&owner_name') and status <> 'UNUSABLE';
 	sql_stmt varchar2(200);
 begin
 	for rec in cu loop
