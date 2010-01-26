@@ -7,6 +7,7 @@ set linesize 10000
 set trimout on
 set trimspool on
 set feedback off
+set verify off
 
 set serveroutput on size 1000000
 
@@ -15,16 +16,15 @@ select 'rebuild_unusable_indexes_'||lower('&&owner_name')||'_'||to_char(sysdate,
 
 spool &spool_file_name
 declare
-	cursor cu is select owner, index_name from dba_indexes where owner = upper('&&owner_name') and status <> 'UNUSABLE';
+	cursor cu is select owner, index_name from dba_indexes where owner = upper('&&owner_name') and status = 'UNUSABLE';
 	sql_stmt varchar2(200);
 begin
 	for rec in cu loop
 		begin
-				sql_stmt := 'alter index "'||rec.owner||'.'||rec.index_name||'" rebuild online';
-					      dbms_output.put_line(rec.owner||'.'||rec.index_name||':'||sqlcode||':'||sqlerrm);
-				execute immediate sql_stmt;
+			sql_stmt := 'alter index '||rec.owner||'.'||rec.index_name||' rebuild online';
+			execute immediate sql_stmt;
 		exception when others then
-	      dbms_output.put_line(rec.owner||'.'||rec.index_name||':'||sqlcode||':'||sqlerrm);
+			dbms_output.put_line(rec.owner||'.'||rec.index_name||':'||sqlcode||':'||sqlerrm);
 		end;
 	end loop;
 end;
@@ -32,4 +32,3 @@ end;
 spool off
 
 exit
-
