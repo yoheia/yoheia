@@ -6,7 +6,7 @@ CURR_TS=`date '+%Y%m%d%H%M%S'`
 
 ORA_USER=system
 ORA_PASS=manager
-ORA_SCHEMA=orcl
+ORA_SCHEMA=scott
 DMP_FILE=exp_${ORACLE_SID}_${CURR_TS}.dmp
 LOG_FILE=exp_${ORACLE_SID}_${CURR_TS}.log
 
