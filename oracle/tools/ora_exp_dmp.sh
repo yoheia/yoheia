@@ -15,6 +15,7 @@ nohup exp ${ORA_USER}/${ORA_PASS} owner=${ORA_SCHEMA} consistent=y direct=y reco
 
 echo "[`date '+%Y-%m-%d %H:%M:%S'`] Exporting ${ORA_SCHEMA} schema to ${BASE_DIR}/${DMP_FILE} ..."
 echo "[`date '+%Y-%m-%d %H:%M:%S'`] Please check ${BASE_DIR}/${LOG_FILE} for more details."
+sleep 1
 echo "[`date '+%Y-%m-%d %H:%M:%S'`] Exp proccess -> `ps -f|egrep \" [e]xp \"`"
 
 exit
