@@ -7,8 +7,8 @@ CURR_TS=`date '+%Y%m%d%H%M%S'`
 ORA_USER=system
 ORA_PASS=manager
 ORA_SCHEMA=scott
-DMP_FILE=exp_${ORACLE_SID}_${CURR_TS}.dmp
-LOG_FILE=exp_${ORACLE_SID}_${CURR_TS}.log
+DMP_FILE=exp_${ORACLE_SID}_${ORA_SCHEMA}_${CURR_TS}.dmp
+LOG_FILE=exp_${ORACLE_SID}_${ORA_SCHEMA}_${CURR_TS}.log
 
 cd ${BASE_DIR}
 nohup exp ${ORA_USER}/${ORA_PASS} owner=${ORA_SCHEMA} consistent=y direct=y recordlength=65536 file=${DMP_FILE} > ${LOG_FILE} 2>&1 &
