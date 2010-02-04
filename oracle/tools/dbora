@@ -1,0 +1,28 @@
+#!/bin/sh
+ORATAB=/etc/oratab
+ORACLE_HOME=`awk -F: '/^[^#:]+:.+:[Y]$/ { print $2; exit}' $ORATAB`
+if [ x$ORACLE_HOME = "x" ]; then
+    echo "There is not Y entry in $ORATAB."
+    exit 1
+fi
+ORACLE=`ls -l $ORACLE_HOME/bin/dbstart | awk '{print $3}'`
+PATH=${PATH}:$ORACLE_HOME/bin
+export ORACLE_HOME PATH
+
+case $1 in
+'start')
+        su - $ORACLE -c "$ORACLE_HOME/bin/dbstart"
+        su - $ORACLE -c "$ORACLE_HOME/bin/lsnrctl start"
+#        su - $ORACLE -c "$ORACLE_HOME/bin/emctl start dbconsole" &
+        ;;
+'stop')
+#        su - $ORACLE -c "$ORACLE_HOME/bin/emctl stop dbconsole" 
+        su - $ORACLE -c "$ORACLE_HOME/bin/lsnrctl stop"
+        su - $ORACLE -c "$ORACLE_HOME/bin/dbshut"
+        ;;
+*)
+        echo "usage: $0 {start|stop}"
+        exit
+        ;;
+esac
+exit
