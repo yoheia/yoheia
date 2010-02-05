@@ -2,7 +2,7 @@
 export LANG=C
 export NLS_LANG=American_America.JA16SJISTILDE
 BASE_DIR=$(cd $(dirname $0);pwd)
-CURR_TS=`date '+%Y%m%d%H%M%S'`
+CURR_TS=`date '+%Y%m%d-%H%M%S'`
 
 ORA_USER=system
 ORA_PASS=manager
