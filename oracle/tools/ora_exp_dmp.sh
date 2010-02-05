@@ -11,7 +11,7 @@ DMP_FILE=exp_${ORACLE_SID}_${ORA_SCHEMA}_${CURR_TS}.dmp
 LOG_FILE=exp_${ORACLE_SID}_${ORA_SCHEMA}_${CURR_TS}.log
 
 cd ${BASE_DIR}
-nohup exp ${ORA_USER}/${ORA_PASS} owner=${ORA_SCHEMA} consistent=y direct=y recordlength=65536 file=${DMP_FILE} > ${LOG_FILE} 2>&1 &
+nohup exp ${ORA_USER}/${ORA_PASS} owner=${ORA_SCHEMA} consistent=y direct=y recordlength=65535 file=${DMP_FILE} > ${LOG_FILE} 2>&1 &
 
 echo "[`date '+%Y-%m-%d %H:%M:%S'`] Exporting ${ORA_SCHEMA} schema to ${BASE_DIR}/${DMP_FILE} ..."
 echo "[`date '+%Y-%m-%d %H:%M:%S'`] Please check ${BASE_DIR}/${LOG_FILE} for more details."
