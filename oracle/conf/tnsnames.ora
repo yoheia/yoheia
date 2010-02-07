@@ -1,0 +1,8 @@
+orcl =
+	(DESCRIPTION =
+		(ADDRESS = (PROTOCOL = TCP)(HOST = 192.168.0.10)(PORT = 1521))
+		(CONNECT_DATA =
+			(SERVER = DEDICATED)
+			(SERVICE_NAME = orcl)
+		)
+	)
