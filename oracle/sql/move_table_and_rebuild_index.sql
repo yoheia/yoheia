@@ -1,5 +1,5 @@
 --$Id:$
-define owner_name = &owner_name
+define owner_name = upper('&owner_name')
 set pagesize 10000
 set linesize 200
 set echo off
@@ -14,7 +14,7 @@ select 'move_table_and_rebuild_index_'||to_char(sysdate,'YYYYMMDDHH24MISS')||'.l
 spool &spool_file_name
 
 declare
-    cursor cu is select owner, table_name from dba_tables where owner = upper('&&owner_name');
+    cursor cu is select owner, table_name from dba_tables where owner = '&&owner_name';
 		sql_stmt varchar2(500);
 begin
     for rec in cu loop
