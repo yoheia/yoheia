@@ -19,9 +19,13 @@ declare
 	cnt number(20);
 begin
 	for rec in cu loop
-		sql_stmt := 'select count(ROWID) from '||rec.segment_name;
-		execute immediate sql_stmt into cnt;
-		dbms_output.put_line(rec.segment_name||','||cnt);
+		begin
+			sql_stmt := 'select count(ROWID) from '||rec.segment_name;
+			execute immediate sql_stmt into cnt;
+			dbms_output.put_line(rec.segment_name||','||cnt);
+		exception when others then
+			dbms_output.put_line(rec.segment_name||','||cnt||':'||sqlcode||':'||sqlerrm);
+		end;
 	end loop;
 end;
 /
