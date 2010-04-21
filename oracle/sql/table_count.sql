@@ -14,7 +14,7 @@ select lower(username)||'_table_count_'|| to_char(sysdate,'YYYYMMDDHH24MISS') ||
 
 spool &spool_file_name
 declare
-	cursor cu is select segment_name from user_segments where segment_type = 'TABLE';
+	cursor cu is select segment_name from user_segments where segment_type = 'TABLE' order by segment_name;
 	sql_stmt varchar2(200);
 	cnt number(20);
 begin
