@@ -20,7 +20,7 @@ declare
 begin
 	for rec in cu loop
 		begin
-			sql_stmt := 'select count(ROWID) from '||rec.segment_name;
+			sql_stmt := 'select count(1) from '||rec.segment_name;
 			execute immediate sql_stmt into cnt;
 			dbms_output.put_line(rec.segment_name||','||cnt);
 		exception when others then
