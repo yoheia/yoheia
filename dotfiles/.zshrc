@@ -1,6 +1,9 @@
 # LANG
 export LANG=C
 
+# PATH
+export PATH=/opt/local/bin:/opt/local/sbin/:$PATH
+
 # see manual umask
 umask 022
 	
