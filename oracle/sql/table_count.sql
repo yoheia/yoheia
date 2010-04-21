@@ -14,7 +14,7 @@ select lower(username)||'_table_count_'|| to_char(sysdate,'YYYYMMDDHH24MISS') ||
 
 spool &spool_file_name
 declare
-	cursor cu is select tablet_name from user_tables order by table_name;
+	cursor cu is select table_name from user_tables order by table_name;
 	sql_stmt varchar2(200);
 	cnt number(20);
 begin
