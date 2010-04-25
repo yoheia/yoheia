@@ -14,14 +14,18 @@ select lower(username)||'_table_count_'|| to_char(sysdate,'YYYYMMDDHH24MISS') ||
 
 spool &spool_file_name
 declare
-	cursor cu is select segment_name from user_segments where segment_type = 'TABLE';
+	cursor cu is select tablet_name from user_tables order by table_name;
 	sql_stmt varchar2(200);
 	cnt number(20);
 begin
 	for rec in cu loop
-		sql_stmt := 'select count(ROWID) from '||rec.segment_name;
-		execute immediate sql_stmt into cnt;
-		dbms_output.put_line(rec.segment_name||','||cnt);
+		begin
+			sql_stmt := 'select count(1) from '||rec.table_name;
+			execute immediate sql_stmt into cnt;
+			dbms_output.put_line(rec.table_name||','||cnt);
+		exception when others then
+			dbms_output.put_line(rec.table_name||','||cnt||':'||sqlcode||':'||sqlerrm);
+		end;
 	end loop;
 end;
 /
