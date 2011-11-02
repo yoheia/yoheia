@@ -14,6 +14,6 @@ then
 fi
 
 cd ${BASE_DIR}
-./outline2spm.sh | sqlplus /nolog > ${BASE_DIR}/${LOG_DIR}/exec_outline2spm-`date '+%Y-%m-%d-%H%M%S'`.log 2>&1 &
+./outline2spm.sh | sqlplus -s /nolog > ${BASE_DIR}/${LOG_DIR}/exec_outline2spm-`date '+%Y-%m-%d-%H%M%S'`.log 2>&1 &
 
 exit
