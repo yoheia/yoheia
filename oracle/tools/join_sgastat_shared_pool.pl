@@ -15,7 +15,7 @@ while (defined($_ = <ARGV>)) {
 	if ($. == 1) {
 		my $filename = basename($ARGV);
 		if (($year, $mon, $date) = $filename =~ /[a-z]+_(\d{4})(\d{2})(\d{2})_\d+\.log/) {
-			print "$year-$mon-$date\n";
+			print "\t$year-$mon-$date";
 		} else {
 			close ARGV;
 		}
@@ -27,12 +27,14 @@ while (defined($_ = <ARGV>)) {
 
 print "\n";
 
-foreach (keys %{$results}) {
+foreach (sort keys %{$results}) {
 	print $_;
-	foreach my $date (keys %{$results->{$_}}) {
+	foreach my $date (sort keys %{$results->{$_}}) {
 		my $val = ($results->{$_}->{$date} ne '' ? $results->{$_}->{$date} : 0 );
 		$val =~ s/\s//g;
 		print "\t$val";
 	}
 	print "\n";
 }
+
+__END__
