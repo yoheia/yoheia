@@ -5,34 +5,28 @@ use warnings;
 use File::Basename;
 
 my $results={};
-my ($year, $mon, $date);
+my %days;
+my ($mon, $day);
 
 print "sga component";
 
 while (defined($_ = <ARGV>)) {
 	chomp;
-	s/\t{2,}/\t/;
-	if ($. == 1) {
-		my $filename = basename($ARGV);
-		if (($year, $mon, $date) = $filename =~ /[a-z]+_(\d{4})(\d{2})(\d{2})_\d+\.log/) {
-			print "\t$year-$mon-$date";
-		} else {
-			close ARGV;
-		}
+	my @cols = split(/,/, $_);
+	if ($#cols >= 4 and ($mon, $day) = $cols[0] =~ /(\d{2})(\d{2})\d{6}/) {
+		$days{"$mon-$day"}++;
+		$results->{$cols[3]}->{"$mon-$day"} = $cols[4] if ($cols[2] eq 'shared pool');
 	}
-	my @cols = split(/\t/, $_);
-	$results->{$cols[0]}->{"$year-$mon-$date"} = $cols[1] if /^shared pool/;
 	close ARGV if eof;
 }
 
+map {print "\t$_"} sort keys %days;
 print "\n";
 
 foreach (sort keys %{$results}) {
 	print $_;
-	foreach my $date (sort keys %{$results->{$_}}) {
-		my $val = ($results->{$_}->{$date} ne '' ? $results->{$_}->{$date} : 0 );
-		$val =~ s/\s//g;
-		print "\t$val";
+	foreach my $day (sort keys %{$results->{$_}}) {
+		print "\t$results->{$_}->{$day}";
 	}
 	print "\n";
 }
