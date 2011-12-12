@@ -12,6 +12,7 @@ print "sga component";
 
 while (defined($_ = <ARGV>)) {
 	chomp;
+	s/\t//g;
 	my @cols = split(/,/, $_);
 	if ($#cols >= 4 and ($mon, $day) = $cols[0] =~ /(\d{2})(\d{2})\d{6}/) {
 		$days{"$mon-$day"}++;
