@@ -24,10 +24,10 @@ while (defined($_ = <ARGV>)) {
 map {print "\t$_"} sort keys %days;
 print "\n";
 
-foreach (sort keys %{$results}) {
-	print $_;
-	foreach my $day (sort keys %{$results->{$_}}) {
-		print "\t$results->{$_}->{$day}";
+foreach my $comp (sort keys %{$results}) {
+	print $comp;
+	foreach my $day (sort keys %days) {
+		print (exists $results->{$comp}->{$day} ? "\t$results->{$comp}->{$day}" : "\t");
 	}
 	print "\n";
 }
