@@ -14,6 +14,9 @@ limit coredumpsize 0
 autoload -U compinit
 compinit
 
+# AWS CLI Autocomplete
+source /usr/local/bin/aws_zsh_completer.sh
+
 # Prompt
 case ${UID} in
 0)
