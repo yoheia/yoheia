@@ -18,7 +18,7 @@ pgbench -V|tee -a ${LOG_DIR}/${STEM}_${DATE}.out
 
 expect -c "
 set timeout 20
-spawn bash -c \"pgbench -P 10 -r -c 10 -j 10 -t 10000 -U ${USER} -h ${HOST} -d ${DB} 2>${LOG_DIR}/${STEM}_${DATE}.err\"
+spawn bash -c \"pgbench -r -c 10 -j 10 -t 10000 -U ${USER} -h ${HOST} -d ${DB} 2>${LOG_DIR}/${STEM}_${DATE}.err\"
 expect \"Password: \"
 send \"${PASSWORD}\n\"
 interact"|tee -a ${LOG_DIR}/${STEM}_${DATE}.out
