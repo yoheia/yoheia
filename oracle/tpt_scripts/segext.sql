@@ -1,0 +1,29 @@
+------------------------------------------------------------------------------
+--
+-- Copyright 2017 Tanel Poder ( tanel@tanelpoder.com | http://tanelpoder.com )
+--
+-- Licensed under the Apache License, Version 2.0 (the "License");
+-- you may not use this file except in compliance with the License.
+-- You may obtain a copy of the License at
+--
+--     http://www.apache.org/licenses/LICENSE-2.0
+--
+-- Unless required by applicable law or agreed to in writing, software
+-- distributed under the License is distributed on an "AS IS" BASIS,
+-- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-- See the License for the specific language governing permissions and
+-- limitations under the License.
+--
+------------------------------------------------------------------------------
+
+select 
+    s.tablespace_name, 
+    s.max_next_extent, 
+    f.max_bytes
+from
+    (select tablespace_name, max(next_extent) max_next_extent from dba_segments group by tablespace_name) s,
+    (select tablespace_name, max(bytes) max_bytes from dba_free_space group by tablespace_name) f
+where
+    s.tablespace_name = f.tablespace_name
+and s.max_next_extent > f.max_bytes;
+
