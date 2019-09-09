@@ -18,6 +18,7 @@ select * from (
 		max(c.BEGIN_INTERVAL_TIME) max_timestamp
 	from dba_hist_sqlstat a, dba_hist_sqltext b, dba_hist_snapshot c
 	where a.dbid = b.dbid
+		and a.instance_number = b.instance_number
 		and a.sql_id = b.sql_id
 		and a.parsing_schema_name not in ('DBSNMP', 'SYS', 'APEX_040200')
 		and a.dbid = c.dbid
