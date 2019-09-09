@@ -15,10 +15,10 @@ select
 	a.sql_id,
 	min(dbms_lob.substr(b.sql_text,60,1)) SQL_TEXT,
 	min(a.module) module,
-	round(sum(a.elapsed_time_delta / 1000 / 1000 / 60 ), 1) "Elapsed(min)",
+	round(sum(a.elapsed_time_delta) / 1000 / 1000 / 60 ), 1) "Elapsed(min)",
 	sum(a.executions_delta) exec,
-	round(sum(a.buffer_gets_delta * 16 / 1024 / 1024), 1) "Gets(GB)",
-	round(sum(a.physical_read_bytes_delta * 16 / 1024 / 1024), 1) "Reads(GB)",
+	round(sum(a.buffer_gets_delta) * 16 / 1024 / 1024), 1) "Gets(GB)",
+	round(sum(a.physical_read_bytes_delta) * 16 / 1024 / 1024), 1) "Reads(GB)",
 	min(c.begin_interval_time) min_timestamp,
 	max(c.begin_interval_time) max_timestamp
 from dba_hist_sqlstat a, 
