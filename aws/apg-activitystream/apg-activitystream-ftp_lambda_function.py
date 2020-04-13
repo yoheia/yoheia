@@ -51,10 +51,9 @@ def lambda_handler(event, context):
 
             activity_stream = open(local_path).read()
             csv_path = lambda_local_dir + basename + '.csv'
-            csv_open = csv.writer(open(csv_path, 'wb+'))
             with open(csv_path, 'w', newline='') as csvfile:
                 fieldnames = ['logTime', 'statementId', 'substatementId', 'objectType', 'command', 'objectName', 'databaseName', 'dbUserName', 'remoteHost', 'remotePort', 'sessionId', 'rowCount', 'commandText', 'paramList', 'pid', 'clientApplication', 'exitCode', 'class', 'serverVersion', 'serverType', 'serviceName', 'serverHost', 'netProtocol', 'dbProtocol', 'type', 'startTime', 'errorMessage']
-                writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+                writer = csv.DictWriter(csvfile, fieldnames=fieldnames, quoting=csv.QUOTE_NONNUMERIC)
                 writer.writeheader()
                 for obj in load_iter(activity_stream):
                     json_enc = json.dumps(obj)
