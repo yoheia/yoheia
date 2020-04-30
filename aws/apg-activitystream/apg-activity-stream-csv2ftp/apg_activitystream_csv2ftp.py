@@ -1,9 +1,11 @@
+import os
 import zlib
 import boto3
 import base64
 import json
 import csv
 import ftplib
+from datetime import datetime
 import aws_encryption_sdk
 from Crypto.Cipher import AES
 from aws_encryption_sdk import DefaultCryptoMaterialsManager
@@ -16,10 +18,12 @@ username = os.environ['FTP_USER']
 password = os.environ['FTP_PASSWD']
 remote_directory = os.environ['FTP_REMOTE_DIR']
 key_id = os.environ['KMS_KEY_ID']
-
 stream_name = os.environ['KINESIS_STREAM_NAME']
-region_name = 'ap-northeast-1'
-cluster_id = os.environ['APG_RESOURCE_ID']
+region_name = os.environ['REGEION']
+cluster_id = os.environ['APG_CLUSTER_ID']
+csvfile_prefix = 'apg_activitystream_' + cluster_id + '_'
+fieldnames = ['logTime', 'serverHost', 'remoteHost', 'databaseName', 'serviceName', 'dbUserName', 'clientApplication', 'commandText', 'rowCount']
+csvfile_row_cnt = 10
 
 class MyRawMasterKeyProvider(RawMasterKeyProvider):
     provider_id = "BC"
@@ -60,11 +64,8 @@ def decrypt(decoded, plaintext):
             return None
 
 if __name__ == '__main__':
-    session = boto3.session.Session(
-    )
-
+    session = boto3.session.Session()
     kms = session.client('kms', region_name=region_name)
-
     client = session.client('kinesis', region_name=region_name)
 
     response = client.describe_stream(StreamName=stream_name)
@@ -77,14 +78,13 @@ if __name__ == '__main__':
         )["ShardIterator"]
         shard_it[idx] = shared_iterator
 
-    fieldnames = ['logTime', 'serverHost', 'remoteHost', 'databaseName', 'serviceName', 'dbUserName', 'clientApplication', 'commandText', 'rowCount']
-    csvfile = open('./activitystream.csv', 'w')
+    csvfile_name = csvfile_prefix + datetime.now().strftime("%Y%m%d-%H%M%S")
+    csvfile = open(csvfile_name, 'w')
     writer = csv.writer(csvfile,lineterminator='\n', quoting=csv.QUOTE_NONNUMERIC)
     writer.writerow(fieldnames)
     cnt = 0
     while True:
-        rows = []
-        if cnt >= 10:
+        if cnt >= csvfile_row_cnt:
             csvfile.close()
             break
         for shared_iterator in shard_it:
@@ -97,18 +97,17 @@ if __name__ == '__main__':
                 decoded_data_key = base64.b64decode(record_data['key'])
                 decrypt_result = kms.decrypt(CiphertextBlob=decoded_data_key,EncryptionContext={"aws:rds:dbc-id":cluster_id})
                 plaintext = decrypt_result[u'Plaintext']
-                obj = decrypt(decoded, decrypt_result[u'Plaintext'])
-                if obj is not None:
+                decoded_data = decrypt(decoded, decrypt_result[u'Plaintext'])
+                if decoded_data is not None:
                     cnt += 1
-                    json_enc = json.dumps(obj)
-                    json_object = json.loads(json_enc)
-                    row=[]
+                    row = []
+                    json_object = json.loads(json.dumps(decoded_data))
                     for fieldname in fieldnames:
                         row.append(json_object.get(fieldname))
                     writer.writerow(row)
             shard_it[shared_iterator] = response["NextShardIterator"]
-    with open('./activitystream.csv', "rb") as f:
+    with open(csvfile_name, "rb") as f:
         ftp = ftplib.FTP(ftp_server)
         ftp.login(username, password)
         ftp.cwd(remote_directory)
-        ftp.storbinary("STOR " + remote_directory + 'activitystream.csv', f) 
+        ftp.storbinary("STOR " + remote_directory + csvfile_name, f)            
