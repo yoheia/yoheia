@@ -11,6 +11,7 @@ current_time='{0:%Y%m%d_%H%M%S}'.format(now - datetime.timedelta(hours=1))
 
 def get_connection():
     return psycopg2.connect(
+        application_name='Python sample',
         host=os.environ['PG_HOST'],
         dbname=os.environ['PG_DBNAME'], # mydb
         port=os.environ['PG_PORT'], # 5432
