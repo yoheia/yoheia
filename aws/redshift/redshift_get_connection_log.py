@@ -19,7 +19,7 @@ def get_connection():
 
 with get_connection() as conn:
     with conn.cursor() as cur:
-        cur.execute("select to_char(recordtime, 'YYYY/MM/DD HH24:MI:SS'),remotehost,remoteport,event,'Redshift', pid, application_name, username from STL_CONNECTION_LOG where recordtime >= %s and recordtime < %s;", [begin_time, end_time])
+        cur.execute("select to_char(recordtime, 'YYYY/MM/DD HH24:MI:SS'),remotehost,remoteport,event,'Redshift', pid, username from STL_CONNECTION_LOG where recordtime >= %s and recordtime < %s;", [begin_time, end_time])
         with open('stl_connection_log.csv', 'w') as f:
             writer = csv.writer(f, quoting=csv.QUOTE_NONNUMERIC)
             for row in cur:
