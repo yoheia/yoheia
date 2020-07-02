@@ -1,7 +1,6 @@
 #!/bin/bash
 export LANG=C
 
-export CSVFILE_PREFIX='aurora-postgres-activity_'
 export S3_BUCKET='s3_bucke_name'
 export S3_PREFIX='aws-rds-das-cluster-***'
 export LOCAL_DIR='./log'

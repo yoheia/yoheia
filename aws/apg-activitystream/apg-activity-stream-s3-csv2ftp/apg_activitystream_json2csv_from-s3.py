@@ -19,7 +19,6 @@ from json.decoder import WHITESPACE
 
 local_directory = os.environ['LOCAL_DIR']
 csv_directory = os.environ['CSV_DIR']
-csvfile_prefix = os.environ['CSVFILE_PREFIX']
 s3_bucket = os.environ['S3_BUCKET']
 s3_prefix = os.environ['S3_PREFIX']
 key_id = os.environ['KMS_KEY_ID']
