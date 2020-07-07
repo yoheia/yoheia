@@ -1,23 +1,24 @@
+#!/usr/bin/env python
 import os
 import zlib
+import gzip
 import boto3
 import base64
 import json
 import csv
 from datetime import datetime, timedelta
+from typing import Optional
+from dataclasses import dataclass
+from json.decoder import WHITESPACE
 import aws_encryption_sdk
 from Crypto.Cipher import AES
 from aws_encryption_sdk import DefaultCryptoMaterialsManager
 from aws_encryption_sdk.internal.crypto import WrappingKey
 from aws_encryption_sdk.key_providers.raw import RawMasterKeyProvider
 from aws_encryption_sdk.identifiers import WrappingAlgorithm, EncryptionKeyType
-from typing import Optional
-from dataclasses import dataclass
-import gzip
-import json
-from json.decoder import WHITESPACE
 
-local_directory = os.environ['LOCAL_DIR']
+# 環境変数
+log_directory = os.environ['LOG_DIR']
 csv_directory = os.environ['CSV_DIR']
 s3_bucket = os.environ['S3_BUCKET']
 s3_prefix = os.environ['S3_PREFIX']
@@ -25,10 +26,17 @@ key_id = os.environ['KMS_KEY_ID']
 stream_name = os.environ['KINESIS_STREAM_NAME']
 region_name = os.environ['REGEION']
 cluster_id = os.environ['APG_CLUSTER_ID']
+
+# CSV ファイルのプリフィックス
 csvfile_prefix = 'apg_activitystream_' + cluster_id + '_'
+# CSV の列名
 fieldnames = ['logTime', 'statementId', 'substatementId', 'objectType', 'command', 'objectName', 'databaseName', 'dbUserName', 'remoteHost', 'remotePort', 'sessionId', 'rowCount', 'commandText', 'paramList', 'pid', 'clientApplication', 'exitCode', 'class', 'serverVersion', 'serverType', 'serviceName', 'serverHost', 'netProtocol', 'dbProtocol', 'type', 'startTime', 'errorMessage']
 
 class MyRawMasterKeyProvider(RawMasterKeyProvider):
+    """Aurora アクティビティストリームの KMS CMK で暗号化されたデータを復号するクラス
+    ref. https://docs.aws.amazon.com/ja_jp/AmazonRDS/latest/AuroraUserGuide/DBActivityStreams.html
+    """
+
     provider_id = "BC"
 
     def __new__(cls, *args, **kwargs):
@@ -66,10 +74,11 @@ def decrypt(decoded, plaintext):
         else:
             return None
 
-
-# ref. https://qiita.com/elyunim26/items/a513226b76b3cb8928c2
 @dataclass
 class S3Manager:
+    """S3 を扱うクラス
+    ref. https://qiita.com/elyunim26/items/a513226b76b3cb8928c2
+    """
     source_bucket: str
     source_prefix: str
     profile: Optional[str] = None
@@ -147,72 +156,82 @@ class S3Manager:
         s3_resource.meta.client.download_file(self.source_bucket, key, dst_path)
         #print(f'downloading: {self.source_bucket}/{key}')
 
-# ref. https://pod.hatenablog.com/entry/2017/08/31/035140
 def loads_iter(s):
-        size = len(s)
-        decoder = json.JSONDecoder()
+    """JSON をディクショナリにデコードする関数
+    ref. https://pod.hatenablog.com/entry/2017/08/31/035140
+    """
+    size = len(s)
+    decoder = json.JSONDecoder()
 
-        end = 0
-        while True:
-            idx = WHITESPACE.match(s[end:]).end()
-            i = end + idx
-            if i >= size:
-                break
-            ob, end = decoder.raw_decode(s, i)
-            yield ob
+    end = 0
+    while True:
+        idx = WHITESPACE.match(s[end:]).end()
+        i = end + idx
+        if i >= size:
+            break
+        ob, end = decoder.raw_decode(s, i)
+        yield ob
 
 if __name__ == '__main__':
 
     # 現在日時取得
     dt_now = datetime.now()
-    #tomorrow = dt_now - timedelta(days=1) # テストのため本日ログを対象としている
-    tomorrow = dt_now
+    tomorrow = dt_now - timedelta(days=1) # テストのため本日ログを対象としている
     year = tomorrow.year
     month = tomorrow.month
     day = tomorrow.day
 
-    if not os.path.exists(local_directory):
-        os.makedirs(local_directory)
+    # ログディレクトリがなければ作成
+    if not os.path.exists(log_directory):
+        os.makedirs(log_directory)
 
+    # CSV ディレクトリがなければ作成
     if not os.path.exists(csv_directory):
         os.makedirs(csv_directory)
 
-    session = boto3.session.Session()
-    kms = session.client('kms', region_name=region_name)
-
-    # 書き込み用 CSV ファイルをオープン
+    # 書込み用 CSV ファイルをオープン
     csvfile_path = csv_directory + '/' + csvfile_prefix + datetime.now().strftime("%Y%m%d.csv")
     csvfile = open(csvfile_path, 'w')
     writer = csv.DictWriter(csvfile, fieldnames=fieldnames, quoting=csv.QUOTE_NONNUMERIC)
-    writer.writeheader()
+    writer.writeheader() # CSV ヘッダ書込み
+
+    # KMS クライアント初期化
+    session = boto3.session.Session()
+    kms = session.client('kms', region_name=region_name)
 
     # 前日分のログをS3からダウンロードして CSV に書込み
     s3 = S3Manager(
             source_bucket=s3_bucket,
             source_prefix="{0}/success/{1}/{2:0=2}/{3:0=2}/".format(s3_prefix, year, month, day),
         )
-    s3_obj_list = s3.list_all()
-    for item in s3_obj_list:
-        basename = os.path.basename(item)
-        local_path = local_directory + '/' + basename
-        s3.download_file(item, local_path)
+    s3_obj_list = s3.list_all() # 前日分のログのリストを取得
+    for s3_obj in s3_obj_list:
+        basename = os.path.basename(s3_obj)
+        local_path = log_directory + '/' + basename
+        s3.download_file(s3_obj, local_path) # S3 からログをダウンロード
+        print("downloading {0} ...".format(s3_obj))
+        # ダウンロードしたログを解凍して CSV に変換
         with gzip.open(local_path, mode='rt', encoding='utf-8') as f:
-            data = f.read()
-            records = loads_iter(data)
+            raw_data = f.read() # 解凍したファイルを読込み
+            records = loads_iter(raw_data) # JSON をディクショナリに変換
+            # ログをレコードごとにループ
+            i = 0
             for record_data in records:
-                key = record_data['key']
-                decoded = base64.b64decode(record_data['databaseActivityEvents'])
+                # databaseActivityEvents セクションを復号
                 decoded_data_key = base64.b64decode(record_data['key'])
+                decoded = base64.b64decode(record_data['databaseActivityEvents'])
                 decrypt_result = kms.decrypt(CiphertextBlob=decoded_data_key,EncryptionContext={"aws:rds:dbc-id":cluster_id})
                 plaintext = decrypt_result[u'Plaintext']
                 decoded_data = decrypt(decoded, decrypt_result[u'Plaintext'])
+                # データが空でなければ CSV に変換して書込み
                 if decoded_data is not None:
-                    row = []
+                    i=i+1
                     json_object = json.loads(json.dumps(decoded_data))
-                    print(json_object)
+                    #print(json_object)
                     writer.writerow(json_object)
+        print("writed {0} rows to {1}.".format(i, csvfile_path))
 
-    # CSV ファイルをクローズ
+    # 書込み用 CSV ファイルをクローズ
     csvfile.close()
 
     # 終了
