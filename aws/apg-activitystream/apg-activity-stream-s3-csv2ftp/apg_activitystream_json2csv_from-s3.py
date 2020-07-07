@@ -6,6 +6,7 @@ import boto3
 import base64
 import json
 import csv
+import ftplib
 from datetime import datetime, timedelta
 from typing import Optional
 from dataclasses import dataclass
@@ -26,6 +27,11 @@ key_id = os.environ['KMS_KEY_ID']
 stream_name = os.environ['KINESIS_STREAM_NAME']
 region_name = os.environ['REGEION']
 cluster_id = os.environ['APG_CLUSTER_ID']
+
+ftp_server = os.environ['FTP_SERVER']
+username = os.environ['FTP_USER']
+password = os.environ['FTP_PASSWD']
+remote_directory = os.environ['FTP_REMOTE_DIR']
 
 # CSV ファイルのプリフィックス
 csvfile_prefix = 'apg_activitystream_' + cluster_id + '_'
@@ -190,7 +196,9 @@ if __name__ == '__main__':
         os.makedirs(csv_directory)
 
     # 書込み用 CSV ファイルをオープン
-    csvfile_path = csv_directory + '/' + csvfile_prefix + datetime.now().strftime("%Y%m%d.csv")
+    csvfile_name = csvfile_prefix + tomorrow.strftime("%Y%m%d.csv")
+    csvfile_path = csv_directory + '/' + csvfile_name
+    
     csvfile = open(csvfile_path, 'w')
     writer = csv.DictWriter(csvfile, fieldnames=fieldnames, quoting=csv.QUOTE_NONNUMERIC)
     writer.writeheader() # CSV ヘッダ書込み
@@ -204,6 +212,7 @@ if __name__ == '__main__':
             source_bucket=s3_bucket,
             source_prefix="{0}/success/{1}/{2:0=2}/{3:0=2}/".format(s3_prefix, year, month, day),
         )
+    
     s3_obj_list = s3.list_all() # 前日分のログのリストを取得
     for s3_obj in s3_obj_list:
         basename = os.path.basename(s3_obj)
@@ -229,10 +238,18 @@ if __name__ == '__main__':
                     json_object = json.loads(json.dumps(decoded_data))
                     #print(json_object)
                     writer.writerow(json_object)
-        print("writed {0} rows to {1}.".format(i, csvfile_path))
+        print("writed {0} rows to {1}".format(i, csvfile_path))
+        
 
     # 書込み用 CSV ファイルをクローズ
-    csvfile.close()
+    # csvfile.close()
+
+    # CSV ファイルを FTP 転送
+    with open(csvfile_path, "rb") as f:
+        ftp = ftplib.FTP(ftp_server)
+        ftp.login(username, password)
+        ftp.cwd(remote_directory)
+        ftp.storbinary("STOR " + remote_directory + csvfile_name, f)            
 
     # 終了
     print('finished')
