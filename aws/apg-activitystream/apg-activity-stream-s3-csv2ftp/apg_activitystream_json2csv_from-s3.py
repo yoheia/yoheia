@@ -36,7 +36,8 @@ remote_directory = os.environ['FTP_REMOTE_DIR']
 # CSV ファイルのプリフィックス
 csvfile_prefix = 'apg_activitystream_' + cluster_id + '_'
 # CSV の列名
-fieldnames = ['logTime', 'statementId', 'substatementId', 'objectType', 'command', 'objectName', 'databaseName', 'dbUserName', 'remoteHost', 'remotePort', 'sessionId', 'rowCount', 'commandText', 'paramList', 'pid', 'clientApplication', 'exitCode', 'class', 'serverVersion', 'serverType', 'serviceName', 'serverHost', 'netProtocol', 'dbProtocol', 'type', 'startTime', 'errorMessage']
+#fieldnames = ['logTime', 'statementId', 'substatementId', 'objectType', 'command', 'objectName', 'databaseName', 'dbUserName', 'remoteHost', 'remotePort', 'sessionId', 'rowCount', 'commandText', 'paramList', 'pid', 'clientApplication', 'exitCode', 'class', 'serverVersion', 'serverType', 'serviceName', 'serverHost', 'netProtocol', 'dbProtocol', 'type', 'startTime', 'errorMessage']
+fieldnames = ['logTime', 'serverHost', 'remoteHost', 'databaseName', 'serviceName', 'dbUserName', 'clientApplication', 'commandText', 'rowCount']
 
 class MyRawMasterKeyProvider(RawMasterKeyProvider):
     """Aurora アクティビティストリームの KMS CMK で暗号化されたデータを復号するクラス
@@ -235,14 +236,13 @@ if __name__ == '__main__':
                 # データが空でなければ CSV に変換して書込み
                 if decoded_data is not None:
                     i=i+1
-                    json_object = json.loads(json.dumps(decoded_data))
-                    #print(json_object)
-                    writer.writerow(json_object)
+                    json_dict = json.loads(json.dumps(decoded_data))
+                    row_dict = dict(filter(lambda x: x[0] in fieldnames, json_dict.items()))
+                    writer.writerow(row_dict)
         print("writed {0} rows to {1}".format(i, csvfile_path))
         
-
     # 書込み用 CSV ファイルをクローズ
-    # csvfile.close()
+    csvfile.close()
 
     # CSV ファイルを FTP 転送
     with open(csvfile_path, "rb") as f:

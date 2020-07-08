@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 export LANG=C
 
 export S3_BUCKET='aurora-postgres-activity-stream-tokyo'
