@@ -183,7 +183,7 @@ if __name__ == '__main__':
 
     # 現在日時取得
     dt_now = datetime.now()
-    tomorrow = dt_now - timedelta(days=1) # テストのため本日ログを対象としている
+    tomorrow = dt_now - timedelta(days=1) 
     year = tomorrow.year
     month = tomorrow.month
     day = tomorrow.day
