@@ -39,6 +39,7 @@ csvfile_prefix = 'apg_activitystream_' + cluster_id + '_'
 #fieldnames = ['logTime', 'statementId', 'substatementId', 'objectType', 'command', 'objectName', 'databaseName', 'dbUserName', 'remoteHost', 'remotePort', 'sessionId', 'rowCount', 'commandText', 'paramList', 'pid', 'clientApplication', 'exitCode', 'class', 'serverVersion', 'serverType', 'serviceName', 'serverHost', 'netProtocol', 'dbProtocol', 'type', 'startTime', 'errorMessage']
 fieldnames = ['logTime', 'serverHost', 'remoteHost', 'databaseName', 'serviceName', 'dbUserName', 'clientApplication', 'commandText', 'rowCount']
 
+
 class MyRawMasterKeyProvider(RawMasterKeyProvider):
     """Aurora アクティビティストリームの KMS CMK で暗号化されたデータを復号するクラス
     ref. https://docs.aws.amazon.com/ja_jp/AmazonRDS/latest/AuroraUserGuide/DBActivityStreams.html
@@ -50,9 +51,10 @@ class MyRawMasterKeyProvider(RawMasterKeyProvider):
         obj = super(RawMasterKeyProvider, cls).__new__(cls)
         return obj
 
-    def __init__(self, wrapping_key):
+    def __init__(self, plain_key):
         RawMasterKeyProvider.__init__(self)
-        self.wrapping_key = wrapping_key
+        self.wrapping_key = WrappingKey(wrapping_algorithm=WrappingAlgorithm.AES_256_GCM_IV12_TAG16_NO_PADDING,
+                                        wrapping_key=plain_key, wrapping_key_type=EncryptionKeyType.SYMMETRIC)
 
     def _get_raw_key(self, key_id):
         return self.wrapping_key
@@ -80,6 +82,19 @@ def decrypt(decoded, plaintext):
             return evt
         else:
             return None
+
+def decrypt_payload(payload, data_key):
+    my_key_provider = MyRawMasterKeyProvider(data_key)
+    my_key_provider.add_master_key("DataKey")
+    decrypted_plaintext, header = aws_encryption_sdk.decrypt(
+        source=payload,
+        materials_manager=aws_encryption_sdk.DefaultCryptoMaterialsManager(master_key_provider=my_key_provider))
+    return decrypted_plaintext
+
+
+def decrypt_decompress(payload, key):
+    decrypted = decrypt_payload(payload, key)
+    return zlib.decompress(decrypted, zlib.MAX_WBITS + 16)
 
 @dataclass
 class S3Manager:
@@ -212,10 +227,13 @@ if __name__ == '__main__':
     s3 = S3Manager(
             source_bucket=s3_bucket,
             source_prefix="{0}/success/{1}/{2:0=2}/{3:0=2}/".format(s3_prefix, year, month, day),
+#            source_prefix="aws-rds-das-cluster-KGKBVXA3OLPRPZH66XFBDPWQUI/success/2020/07/13/06/aws-rds-das-cluster-KGKBVXA3OLPRPZH66XFBDPWQUI-kfh-1-2020-07-13-06-20",
         )
     
     s3_obj_list = s3.list_all() # 前日分のログのリストを取得
     for s3_obj in s3_obj_list:
+        if s3_obj.endswith('/'):
+            continue
         basename = os.path.basename(s3_obj)
         local_path = log_directory + '/' + basename
         s3.download_file(s3_obj, local_path) # S3 からログをダウンロード
@@ -232,13 +250,16 @@ if __name__ == '__main__':
                 decoded = base64.b64decode(record_data['databaseActivityEvents'])
                 decrypt_result = kms.decrypt(CiphertextBlob=decoded_data_key,EncryptionContext={"aws:rds:dbc-id":cluster_id})
                 plaintext = decrypt_result[u'Plaintext']
-                decoded_data = decrypt(decoded, decrypt_result[u'Plaintext'])
-                # データが空でなければ CSV に変換して書込み
-                if decoded_data is not None:
+                decoded_data = decrypt_decompress(decoded, decrypt_result[u'Plaintext']).decode('utf-8')
+                record_event = json.loads(decoded_data)
+
+                for evt in record_event['databaseActivityEventList']:
                     i=i+1
-                    json_dict = json.loads(json.dumps(decoded_data))
-                    row_dict = dict(filter(lambda x: x[0] in fieldnames, json_dict.items()))
-                    writer.writerow(row_dict)
+                    if evt['type'] != "heartbeat":
+                        json_dict = json.loads(json.dumps(evt))
+                        row_dict = dict(filter(lambda x: x[0] in fieldnames, json_dict.items()))
+                        writer.writerow(row_dict)
+
         print("writed {0} rows to {1}".format(i, csvfile_path))
         
     # 書込み用 CSV ファイルをクローズ
