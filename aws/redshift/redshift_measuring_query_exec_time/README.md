@@ -59,7 +59,7 @@ Pager usage is off.
 -- result cache off
 set enable_result_cache_for_session=off;
 SET
-Time: 4.281 ms
+Time: 4.383 ms
 -- execute target query
 \i sample.sql
 select count(a.*) from lineorder a;
@@ -68,15 +68,15 @@ select count(a.*) from lineorder a;
  600037902
 (1 row)
 
-Time: 82.263 ms
+Time: 102.634 ms
 -- query id
 select pg_last_query_id();
  pg_last_query_id
 ------------------
-           101956
+           111778
 (1 row)
 
-Time: 4.191 ms
+Time: 3.954 ms
 -- execution time
 select userid,
         trim(database) "database",
@@ -84,7 +84,8 @@ select userid,
         query,
         xid,
         pid,
-        endtime - starttime as "exec_time",
+--        endtime - starttime as "exec_time",
+	datediff(milliseconds, starttime, endtime) as "exec_time(ms)",
         starttime,
         endtime,
         aborted,
@@ -92,12 +93,12 @@ select userid,
         concurrency_scaling_status,
         trim(querytxt) as query_text
         from STL_QUERY where query = pg_last_query_id();
- userid | database |  label  | query  |  xid   |  pid  | exec_time |         starttime          |          endtime           | aborted | insert_pristine | concurrency_scaling_status |             query_text
---------+----------+---------+--------+--------+-------+-----------+----------------------------+----------------------------+---------+-----------------+----------------------------+-------------------------------------
-    100 | dev      | default | 101956 | 377295 | 28857 | 51564     | 2021-10-25 04:40:09.090391 | 2021-10-25 04:40:09.141955 |       0 |               0 |                         19 | select count(a.*) from lineorder a;
+ userid | database |  label  | query  |  xid   |  pid  | exec_time(ms) |         starttime          |          endtime           | aborted | insert_pristine | concurrency_scaling_status |             query_text
+--------+----------+---------+--------+--------+-------+---------------+----------------------------+----------------------------+---------+-----------------+----------------------------+-------------------------------------
+    100 | dev      | default | 111778 | 400350 | 22559 |            67 | 2021-10-25 11:28:25.972454 | 2021-10-25 11:28:26.039657 |       0 |               0 |                         19 | select count(a.*) from lineorder a;
 (1 row)
 
-Time: 484.035 ms
+Time: 5588.799 ms (00:05.589)
 \q
 ```
 
