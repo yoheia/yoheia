@@ -17,7 +17,7 @@ $ cd /yoheia/aws/redshift/redshift_measuring_query_exec_time
 $ chmod u+x redshift_measuring_query_exec_time.sh
 ```
 
-* ./redshift_measuring_query_exec_time.sh を編集し、接続情報を設定する
+* redshift_measuring_query_exec_time.sh を編集し、接続情報を設定する
 
 ```bash
 # Redshift のエンドポイント
