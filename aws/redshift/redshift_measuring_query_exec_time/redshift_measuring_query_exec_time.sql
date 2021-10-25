@@ -8,7 +8,7 @@
 set enable_result_cache_for_session=off;
 
 -- execute target query
-\i sample.sql
+\i lineorder_count.sql
 
 -- query id
 select pg_last_query_id();
