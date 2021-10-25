@@ -13,7 +13,19 @@ $ git clone https://github.com/yoheia/yoheia.git
 * パーミッションを設定する
 
 ```bash
+$ cd /yoheia/aws/redshift/redshift_measuring_query_exec_time
 $ chmod u+x redshift_measuring_query_exec_time.sh
+```
+
+* ./redshift_measuring_query_exec_time.sh を編集し、接続情報を設定する
+
+```bash
+# Redshift のエンドポイント
+PG_HOST=${PG_HOST:-redshift-cluster-2.********.ap-northeast-1.redshift.amazonaws.com}
+# Redshift のユーザー名
+PG_USER=${PG_USER:-awsuser}
+# Redshift のDB名
+PG_DB=${PG_DB:-dev}
 ```
 
 * Redshift のパスワードを設定する（実行時に毎度入力する必要がないよう設定する）
@@ -38,29 +50,33 @@ $ ./redshift_measuring_query_exec_time.sh
 * log ディレクトリ以下に redshift_measuring_query_exec_time_2021-10-25-025011.log  のようなファイル名でログ出力される。
 
 ```bash
+--timing on
 \timing on
 Timing is on.
+--pager off
 \pset pager
 Pager usage is off.
+-- result cache off
 set enable_result_cache_for_session=off;
 SET
-Time: 3.476 ms
-\i lineorder.sql
+Time: 4.281 ms
+-- execute target query
+\i sample.sql
 select count(a.*) from lineorder a;
    count
 -----------
  600037902
 (1 row)
 
-Time: 41.571 ms
+Time: 82.263 ms
 -- query id
 select pg_last_query_id();
  pg_last_query_id
 ------------------
-            99229
+           101956
 (1 row)
 
-Time: 3.232 ms
+Time: 4.191 ms
 -- execution time
 select userid,
         trim(database) "database",
@@ -76,13 +92,12 @@ select userid,
         concurrency_scaling_status,
         trim(querytxt) as query_text
         from STL_QUERY where query = pg_last_query_id();
- userid | database |  label  | query |  xid   |  pid  | exec_time |         starttime          |          endtime           | aborted | insert_pristine | concurrency_scaling_status |             query_text
---------+----------+---------+-------+--------+-------+-----------+----------------------------+----------------------------+---------+-----------------+----------------------------+-------------------------------------
-    100 | dev      | default | 99229 | 370892 | 11676 | 28465     | 2021-10-25 02:46:35.426428 | 2021-10-25 02:46:35.454893 |       0 |               0 |                         19 | select count(a.*) from lineorder a;
+ userid | database |  label  | query  |  xid   |  pid  | exec_time |         starttime          |          endtime           | aborted | insert_pristine | concurrency_scaling_status |             query_text
+--------+----------+---------+--------+--------+-------+-----------+----------------------------+----------------------------+---------+-----------------+----------------------------+-------------------------------------
+    100 | dev      | default | 101956 | 377295 | 28857 | 51564     | 2021-10-25 04:40:09.090391 | 2021-10-25 04:40:09.141955 |       0 |               0 |                         19 | select count(a.*) from lineorder a;
 (1 row)
 
-Time: 5621.525 ms (00:05.622)
+Time: 484.035 ms
 \q
-
 ```
 
