@@ -7,6 +7,9 @@
 -- result cache off
 set enable_result_cache_for_session=off;
 
+-- show Redshift version
+select version();
+
 -- execute target query
 \i lineorder_count.sql
 
