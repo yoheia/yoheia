@@ -12,6 +12,7 @@ set enable_result_cache_for_session=off;
 
 -- query id
 select pg_last_query_id();
+\gset
 
 -- execution time
 select userid,
@@ -27,6 +28,22 @@ select userid,
         insert_pristine,
         concurrency_scaling_status,
         trim(querytxt) as query_text
-        from STL_QUERY where query = pg_last_query_id();
+from stl_query where query = :pg_last_query_id;
+
+-- show execution plan
+select query,
+       maxtime,
+       avgtime,
+       rows,
+       bytes,
+       lpad(' ',stm+seg+step) || label as label,
+       is_diskbased,
+       workmem,
+       is_rrscan,
+       is_delayed_scan,
+       rows_pre_filter
+from svl_query_summary
+where query = :pg_last_query_id
+order by stm, seg, step;
 
 \q
