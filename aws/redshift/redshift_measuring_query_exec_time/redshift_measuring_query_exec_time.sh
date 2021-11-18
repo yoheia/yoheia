@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+!/usr/bin/env bash
 
 export LC_ALL=C
 SCRIPT_BASE_NAME=$(basename $0 .sh)
@@ -24,11 +24,15 @@ then
     mkdir ${LOG_DIR}
 fi
 
+
+echo `date '+%Y-%m-%d-%H:%M:%S'` > "${LOG_DIR}/${SCRIPT_BASE_NAME}_${CURRENT_DATE}_${LOG_SUFFIX_ENV_INFO}.log" 2>&1
+
 aws redshift describe-clusters --cluster-identifier ${INSTANCE_IDENTIFIER} \
-        > "${LOG_DIR}/${SCRIPT_BASE_NAME}_${CURRENT_DATE}_${LOG_SUFFIX_ENV_INFO}.log" 2>&1
+       >> "${LOG_DIR}/${SCRIPT_BASE_NAME}_${CURRENT_DATE}_${LOG_SUFFIX_ENV_INFO}.log" 2>&1
 
 psql "host=$PG_HOST user=$PG_USER dbname=$PG_DB port=$PG_PORT" -a -f ${SQL_SCRIPT_ENV_INFO} \
-        >> "${LOG_DIR}/${SCRIPT_BASE_NAME}_${CURRENT_DATE}_${LOG_SUFFIX_ENV_INFO}.log" 2>&1
+       >> "${LOG_DIR}/${SCRIPT_BASE_NAME}_${CURRENT_DATE}_${LOG_SUFFIX_ENV_INFO}.log" 2>&1
 
+echo `date '+%Y-%m-%d-%H:%M:%S'` > "${LOG_DIR}/${SCRIPT_BASE_NAME}_${CURRENT_DATE}_${LOG_SUFFIX_QUERY_PERF}.log" 2>&1
 psql "host=$PG_HOST user=$PG_USER dbname=$PG_DB port=$PG_PORT" -a -f ${SQL_SCRIPT_QUERY_PERF} \
-        > "${LOG_DIR}/${SCRIPT_BASE_NAME}_${CURRENT_DATE}_${LOG_SUFFIX_QUERY_PERF}.log" 2>&1
+       >> "${LOG_DIR}/${SCRIPT_BASE_NAME}_${CURRENT_DATE}_${LOG_SUFFIX_QUERY_PERF}.log" 2>&1
