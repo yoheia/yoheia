@@ -1,3 +1,6 @@
+--current timestamp (UTC)
+select getdate();
+
 --timing on
 \timing on
 
@@ -28,7 +31,7 @@ select userid,
         insert_pristine,
         concurrency_scaling_status,
         trim(querytxt) as query_text
-from stl_query where query = :pg_last_query_id;
+        from STL_QUERY where query = :pg_last_query_id;
 
 -- show execution plan
 select query,
@@ -45,5 +48,25 @@ select query,
 from svl_query_summary
 where query = :pg_last_query_id
 order by stm, seg, step;
+
+-- STL_EXPLAIN
+select query,
+        nodeid,
+        parentid,
+        substring(plannode from 1 for 200) as plannode,
+        substring(info from 1 for 100) as info
+from stl_explain
+where query = :pg_last_query_id
+order by 1,2;
+
+-- STL_WLM_QUERY
+select * from STL_WLM_QUERY
+where query = :pg_last_query_id
+order by service_class;
+
+-- SVL_QUERY_REPORT
+select * from SVL_QUERY_REPORT
+where query = :pg_last_query_id
+order by segment, step, slice;
 
 \q
