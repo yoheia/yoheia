@@ -6,7 +6,7 @@ CURRENT_DATE=`date '+%Y-%m-%d-%H%M%S'`
 BASE_DIR=$(cd $(dirname $0);pwd)
 cd $BASE_DIR
 
-PG_HOST=${PG_HOST:-redshift-cluster-2.ceyg6jv96hfq.ap-northeast-1.redshift.amazonaws.com}
+PG_HOST=${PG_HOST:-redshift-cluster-2.********.ap-northeast-1.redshift.amazonaws.com}
 PG_USER=${PG_USER:-awsuser}
 PG_DB=${PG_DB:-dev}
 PG_PORT=${PG_PORT:-5439}
