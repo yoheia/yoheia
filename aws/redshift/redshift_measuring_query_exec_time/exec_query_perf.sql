@@ -53,8 +53,8 @@ order by stm, seg, step;
 select query,
         nodeid,
         parentid,
-        substring(plannode from 1 for 200) as plannode,
-        substring(info from 1 for 100) as info
+        plannode,
+        info
 from stl_explain
 where query = :pg_last_query_id
 order by 1,2;
