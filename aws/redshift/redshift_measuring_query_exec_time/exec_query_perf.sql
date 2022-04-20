@@ -35,16 +35,19 @@ select userid,
 
 -- show execution plan
 select query,
-       maxtime,
-       avgtime,
-       rows,
-       bytes,
-       lpad(' ',stm+seg+step) || label as label,
-       is_diskbased,
-       workmem,
-       is_rrscan,
-       is_delayed_scan,
-       rows_pre_filter
+        stm, 
+        seg, 
+        step,
+        maxtime,
+        avgtime,
+        rows,
+        bytes,
+        lpad(' ',stm+seg+step) || label as label,
+        is_diskbased,
+        workmem,
+        is_rrscan,
+        is_delayed_scan,
+        rows_pre_filter
 from svl_query_summary
 where query = :pg_last_query_id
 order by stm, seg, step;
