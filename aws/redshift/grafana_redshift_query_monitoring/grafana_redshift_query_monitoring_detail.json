@@ -1,0 +1,636 @@
+{
+    "annotations": {
+      "list": [
+        {
+          "builtIn": 1,
+          "datasource": "-- Grafana --",
+          "enable": true,
+          "hide": true,
+          "iconColor": "rgba(0, 211, 255, 1)",
+          "name": "Annotations & Alerts",
+          "target": {
+            "limit": 100,
+            "matchAny": false,
+            "tags": [],
+            "type": "dashboard"
+          },
+          "type": "dashboard"
+        }
+      ]
+    },
+    "editable": true,
+    "fiscalYearStartMonth": 0,
+    "graphTooltip": 0,
+    "id": 2,
+    "iteration": 1658354655568,
+    "links": [],
+    "liveNow": true,
+    "panels": [
+      {
+        "collapsed": false,
+        "gridPos": {
+          "h": 1,
+          "w": 24,
+          "x": 0,
+          "y": 0
+        },
+        "id": 12,
+        "panels": [],
+        "title": "Query Summary",
+        "type": "row"
+      },
+      {
+        "datasource": {
+          "uid": "${ds}"
+        },
+        "description": "General information about the query",
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "fixedColor": "text",
+              "mode": "fixed"
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                },
+                {
+                  "color": "red",
+                  "value": 80
+                }
+              ]
+            }
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 4,
+          "w": 24,
+          "x": 0,
+          "y": 1
+        },
+        "id": 10,
+        "options": {
+          "colorMode": "value",
+          "graphMode": "area",
+          "justifyMode": "auto",
+          "orientation": "vertical",
+          "reduceOptions": {
+            "calcs": [],
+            "fields": "/.*/",
+            "values": false
+          },
+          "text": {},
+          "textMode": "auto"
+        },
+        "pluginVersion": "8.4.7",
+        "targets": [
+          {
+            "fillMode": {
+              "mode": 1,
+              "value": 0
+            },
+            "format": 1,
+            "rawSQL": "-- grafana-redshift-default-dashboard\nSELECT \n    coalesce(query, 0) as query,\n    coalesce(userid, 0) as userid,\n\n    coalesce(query_priority, 'N/A') AS priority,\n    coalesce(service_class, 0) AS queue,\n    coalesce(slot_count, 0) AS slots,\n\n    CASE WHEN state IN ('Dequeued', 'Initialized', 'Invalid', 'Rejected', 'TaskAssigned')\n    THEN 'Internal'\n    ELSE state \n    END AS state,\n\n    start_time,\n    coalesce(queue_time, 0) AS queue_time,\n    coalesce(exec_time, 0) AS exec_time,\n\n    coalesce(cpu_time, 0) AS cpu_time,\n    coalesce(cpu_time_pct, 0) AS cpu_time_pct,\n    coalesce(blocks_read, 0) AS blocks_read,\n    coalesce(temp_blocks_to_disk, 0) AS temp_blocks_to_disk,\n\n    coalesce(cpu_skew, 0) AS cpu_skew,\n    coalesce(blocks_read_skew, 0) AS blocks_read_skew,\n\n    coalesce(scan_row_count, 0) AS scan_row_count,\n    coalesce(total_join_row_count, 0) AS total_join_row_count,\n    coalesce(nested_loop_join_row_count, 0) AS nested_loop_join_row_count,\n    coalesce(return_row_count, 0) AS return_row_count,\n    coalesce(spectrum_row_count, 0) AS spectrum_row_count,\n    coalesce(spectrum_scan_size_mb, 0) AS spectrum_scan_size_mb\nFROM (\n    SELECT * \n    FROM (\n        SELECT\n            query, query_priority, service_class, slot_count, trim(state) AS state,\n            wlm_start_time AS start_time, queue_time, exec_time\n        FROM stv_wlm_query_state \n        WHERE query = $query\n        UNION ALL\n        SELECT\n            query, query_priority, service_class, slot_count, 'Finished' AS state,\n            service_class_start_time AS start_time, total_queue_time AS queue_time, total_exec_time AS exec_time\n        FROM stl_wlm_query \n        WHERE query = $query\n    ) AS u\n) AS w\nLEFT JOIN (\n    SELECT\n        query,\n        userid,\n\n        max(cpu_time) AS cpu_time,\n        max(cpu_time_pct) AS cpu_time_pct,\n        max(blocks_read) AS blocks_read,\n        max(temp_blocks_to_disk) AS temp_blocks_to_disk,\n\n        max(cpu_skew) AS cpu_skew,\n        max(blocks_read_skew) AS blocks_read_skew,\n\n        coalesce(sum(scan_row_count), 0) AS scan_row_count,\n        coalesce(sum(total_join_row_count), 0) AS total_join_row_count,\n        coalesce(sum(nested_loop_join_row_count), 0) AS nested_loop_join_row_count,\n        coalesce(sum(return_row_count), 0) AS return_row_count,\n        coalesce(sum(spectrum_row_count), 0) AS spectrum_row_count,\n        coalesce(sum(spectrum_scan_size_mb), 0) AS spectrum_scan_size_mb\n    FROM (\n        SELECT\n            query,\n            userid,\n\n            -- query level\n\n            CASE WHEN segment = -1 AND step_type = -1 AND step = -1 AND cpu_time > 0 \n            THEN cpu_time\n            ELSE NULL END AS cpu_time,\n\n            CASE WHEN segment = -1 AND step_type = -1 AND step = -1 AND cpu_time > 0 AND run_time > 0 AND max_run_time > 2*60*1000000 /* to reduce sampling errors */\n            THEN 1.0 * cpu_time / run_time\n            ELSE NULL END AS cpu_time_pct,\n\n            CASE WHEN segment = -1 AND step_type = -1 AND step = -1 AND blocks_read > 0 \n            THEN blocks_read\n            ELSE NULL END AS blocks_read,\n\n            CASE WHEN segment = -1 AND step_type = -1 AND step = -1 AND blocks_to_disk > 0 \n            THEN blocks_to_disk\n            ELSE NULL END AS temp_blocks_to_disk,\n\n            -- segment level\n\n            CASE WHEN segment > -1 AND step_type = -1 AND step = -1 AND cpu_time > 0 AND max_cpu_time > 0 AND max_run_time > 2*60*1000000 /* to reduce sampling errors */\n            THEN 1.0 * max_cpu_time / (cpu_time / slices)\n            ELSE NULL END AS cpu_skew,\n\n            CASE WHEN segment > -1 AND step_type = -1 AND step = -1 AND blocks_read > 0 AND max_blocks_read > 0 AND max_run_time > 2*60*1000000 /* to reduce sampling errors */\n            THEN 1.0 * max_blocks_read / (blocks_read / slices)\n            ELSE NULL END AS blocks_read_skew,\n\n            -- step level\n\n            CASE WHEN segment > -1 AND step_type = 1 AND step > -1 AND rows > 0 THEN rows\n            ELSE NULL END AS scan_row_count,\n\n            CASE WHEN segment > -1 AND step_type IN (10, 11, 15) AND step > -1 AND rows > 0 THEN rows\n            ELSE NULL END AS total_join_row_count,\n\n            CASE WHEN segment > -1 AND step_type = 15 AND step > -1 AND rows > 0 THEN rows\n            ELSE NULL END AS nested_loop_join_row_count,\n\n            CASE WHEN segment > -1 AND step_type = 37 AND step > -1 AND rows > 0 THEN rows\n            ELSE NULL END AS return_row_count,\n\n            CASE WHEN segment > -1 AND step_type = 40 AND step > -1 AND rows > 0 THEN rows\n            ELSE NULL END AS spectrum_row_count,\n\n            CASE WHEN segment > -1 AND step_type = 40 AND step > -1 AND query_scan_size > 0 THEN query_scan_size\n            ELSE NULL END AS spectrum_scan_size_mb\n        FROM (\n            SELECT \n                query, userid, segment, step_type, step, cpu_time, max_cpu_time, run_time, max_run_time, \n                blocks_read, max_blocks_read, blocks_to_disk, slices, rows, query_scan_size\n            FROM stv_query_metrics\n            WHERE query = $query\n            UNION ALL\n            SELECT \n                query, userid, segment, step_type, step, cpu_time, max_cpu_time, run_time, max_run_time, \n                blocks_read, max_blocks_read, blocks_to_disk, slices, rows, query_scan_size\n            FROM stl_query_metrics\n            WHERE query = $query\n        ) AS u\n    ) AS s\n    GROUP BY query, userid\n) AS m USING (query);",
+            "refId": "A"
+          }
+        ],
+        "title": "General Info",
+        "transformations": [
+          {
+            "id": "filterFieldsByName",
+            "options": {
+              "include": {
+                "names": [
+                  "query",
+                  "userid",
+                  "priority",
+                  "queue",
+                  "slots",
+                  "state",
+                  "start_time"
+                ]
+              }
+            }
+          }
+        ],
+        "type": "stat"
+      },
+      {
+        "datasource": {
+          "type": "datasource",
+          "uid": "-- Dashboard --"
+        },
+        "description": "Various time statistics",
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "fixedColor": "text",
+              "mode": "fixed"
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                }
+              ]
+            },
+            "unit": "µs"
+          },
+          "overrides": [
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "cpu_time_pct"
+              },
+              "properties": [
+                {
+                  "id": "unit",
+                  "value": "percentunit"
+                },
+                {
+                  "id": "max",
+                  "value": 1
+                },
+                {
+                  "id": "min",
+                  "value": 0
+                }
+              ]
+            }
+          ]
+        },
+        "gridPos": {
+          "h": 4,
+          "w": 6,
+          "x": 0,
+          "y": 5
+        },
+        "id": 16,
+        "options": {
+          "displayMode": "gradient",
+          "orientation": "horizontal",
+          "reduceOptions": {
+            "calcs": [
+              "lastNotNull"
+            ],
+            "fields": "",
+            "values": false
+          },
+          "showUnfilled": true,
+          "text": {}
+        },
+        "pluginVersion": "8.4.7",
+        "targets": [
+          {
+            "panelId": 10,
+            "refId": "A"
+          }
+        ],
+        "title": "Timing",
+        "transformations": [
+          {
+            "id": "filterFieldsByName",
+            "options": {
+              "include": {
+                "names": [
+                  "queue_time",
+                  "exec_time",
+                  "cpu_time",
+                  "cpu_time_pct"
+                ]
+              }
+            }
+          }
+        ],
+        "type": "bargauge"
+      },
+      {
+        "datasource": {
+          "type": "datasource",
+          "uid": "-- Dashboard --"
+        },
+        "description": "Block operations related metrics",
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "fixedColor": "text",
+              "mode": "fixed"
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                }
+              ]
+            },
+            "unit": "decmbytes"
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 4,
+          "w": 6,
+          "x": 6,
+          "y": 5
+        },
+        "id": 17,
+        "options": {
+          "displayMode": "gradient",
+          "orientation": "horizontal",
+          "reduceOptions": {
+            "calcs": [
+              "lastNotNull"
+            ],
+            "fields": "",
+            "values": false
+          },
+          "showUnfilled": true,
+          "text": {}
+        },
+        "pluginVersion": "8.4.7",
+        "targets": [
+          {
+            "panelId": 10,
+            "refId": "A"
+          }
+        ],
+        "title": "Block Operations",
+        "transformations": [
+          {
+            "id": "filterFieldsByName",
+            "options": {
+              "include": {
+                "names": [
+                  "blocks_read",
+                  "temp_blocks_to_disk"
+                ]
+              }
+            }
+          }
+        ],
+        "type": "bargauge"
+      },
+      {
+        "datasource": {
+          "type": "datasource",
+          "uid": "-- Dashboard --"
+        },
+        "description": "Skew related metrics",
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "fixedColor": "text",
+              "mode": "continuous-GrYlRd"
+            },
+            "mappings": [],
+            "max": 2,
+            "min": 1,
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                }
+              ]
+            },
+            "unit": "short"
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 4,
+          "w": 6,
+          "x": 12,
+          "y": 5
+        },
+        "id": 18,
+        "options": {
+          "displayMode": "gradient",
+          "orientation": "horizontal",
+          "reduceOptions": {
+            "calcs": [
+              "lastNotNull"
+            ],
+            "fields": "",
+            "values": false
+          },
+          "showUnfilled": true,
+          "text": {}
+        },
+        "pluginVersion": "8.4.7",
+        "targets": [
+          {
+            "panelId": 10,
+            "refId": "A"
+          }
+        ],
+        "title": "Skew",
+        "transformations": [
+          {
+            "id": "filterFieldsByName",
+            "options": {
+              "include": {
+                "names": [
+                  "cpu_skew",
+                  "blocks_read_skew"
+                ]
+              }
+            }
+          }
+        ],
+        "type": "bargauge"
+      },
+      {
+        "datasource": {
+          "type": "datasource",
+          "uid": "-- Dashboard --"
+        },
+        "description": "Skew related metrics",
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "fixedColor": "text",
+              "mode": "fixed"
+            },
+            "mappings": [],
+            "max": 2,
+            "min": 1,
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                }
+              ]
+            },
+            "unit": "short"
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 4,
+          "w": 6,
+          "x": 18,
+          "y": 5
+        },
+        "id": 19,
+        "options": {
+          "displayMode": "gradient",
+          "orientation": "horizontal",
+          "reduceOptions": {
+            "calcs": [
+              "lastNotNull"
+            ],
+            "fields": "",
+            "values": false
+          },
+          "showUnfilled": true,
+          "text": {}
+        },
+        "pluginVersion": "8.4.7",
+        "targets": [
+          {
+            "panelId": 10,
+            "refId": "A"
+          }
+        ],
+        "title": "Processed Rows",
+        "transformations": [
+          {
+            "id": "filterFieldsByName",
+            "options": {
+              "include": {
+                "names": [
+                  "scan_row_count",
+                  "total_join_row_count",
+                  "nested_loop_join_row_count",
+                  "return_row_count",
+                  "spectrum_row_count"
+                ]
+              }
+            }
+          }
+        ],
+        "type": "bargauge"
+      },
+      {
+        "collapsed": false,
+        "gridPos": {
+          "h": 1,
+          "w": 24,
+          "x": 0,
+          "y": 9
+        },
+        "id": 23,
+        "panels": [],
+        "title": "Query Text (Yahoo Japan PoC)",
+        "type": "row"
+      },
+      {
+        "datasource": {
+          "uid": "${ds}"
+        },
+        "description": "Query text is limited with the 1st 1000 lines of the query",
+        "gridPos": {
+          "h": 8,
+          "w": 24,
+          "x": 0,
+          "y": 10
+        },
+        "id": 8,
+        "options": {
+          "dedupStrategy": "none",
+          "enableLogDetails": false,
+          "prettifyLogMessage": false,
+          "showCommonLabels": false,
+          "showLabels": false,
+          "showTime": false,
+          "sortOrder": "Descending",
+          "wrapLogMessage": true
+        },
+        "targets": [
+          {
+            "fillMode": {
+              "mode": 0
+            },
+            "format": 0,
+            "rawSQL": "-- grafana-redshift-default-dashboard\nSELECT\n    current_timestamp,\n    replace(\n        listagg(text, '') WITHIN GROUP (ORDER BY sequence),\n        '\\\\n', '\\n'\n    ) AS text\nFROM (\n    SELECT text, sequence\n    FROM stl_querytext\n    WHERE query = $query\n    ORDER BY sequence\n    LIMIT 1000\n) AS s;\n",
+            "refId": "A"
+          }
+        ],
+        "title": "Text",
+        "type": "logs"
+      },
+      {
+        "collapsed": false,
+        "gridPos": {
+          "h": 1,
+          "w": 24,
+          "x": 0,
+          "y": 18
+        },
+        "id": 14,
+        "panels": [],
+        "title": "Query Plan",
+        "type": "row"
+      },
+      {
+        "datasource": {
+          "uid": "${ds}"
+        },
+        "description": "EXPLAIN plan of the query",
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "fixedColor": "text",
+              "mode": "fixed"
+            },
+            "custom": {
+              "align": "auto",
+              "displayMode": "auto"
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                },
+                {
+                  "color": "red",
+                  "value": 80
+                }
+              ]
+            },
+            "unit": "short"
+          },
+          "overrides": [
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "cost_increase"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 120
+                },
+                {
+                  "id": "custom.displayMode",
+                  "value": "gradient-gauge"
+                }
+              ]
+            }
+          ]
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 24,
+          "x": 0,
+          "y": 19
+        },
+        "id": 21,
+        "options": {
+          "footer": {
+            "fields": "",
+            "reducer": [
+              "sum"
+            ],
+            "show": false
+          },
+          "showHeader": true,
+          "sortBy": []
+        },
+        "pluginVersion": "8.4.7",
+        "targets": [
+          {
+            "fillMode": {
+              "mode": 1,
+              "value": 0
+            },
+            "format": 1,
+            "rawSQL": "-- grafana-redshift-default-dashboard\nSELECT\n    (\n        nullif(regexp_substr(plannode, 'cost=[0-9]+\\.[0-9]+..([0-9]+\\.[0-9]+)', 1, 1, 'e'), '')::numeric -\n        nullif(regexp_substr(plannode, 'cost=([0-9]+\\.[0-9]+)..[0-9]+\\.[0-9]+', 1, 1, 'e'), '')::numeric\n    ) AS cost_increase,\n    regexp_replace(plannode, ' ', '\\\\xA0') AS plan_node,\n    coalesce(nullif(trim(info), '0'), '') AS info\nFROM stl_explain\nWHERE query = $query\nORDER BY nodeid, parentid;",
+            "refId": "A"
+          }
+        ],
+        "title": "Plan",
+        "type": "table"
+      }
+    ],
+    "refresh": "",
+    "schemaVersion": 35,
+    "style": "dark",
+    "tags": [],
+    "templating": {
+      "list": [
+        {
+          "current": {
+            "selected": false,
+            "text": "redshift-poc-central-cluster",
+            "value": "redshift-poc-central-cluster"
+          },
+          "hide": 0,
+          "includeAll": false,
+          "label": "Data source",
+          "multi": false,
+          "name": "ds",
+          "options": [],
+          "query": "grafana-redshift-datasource",
+          "queryValue": "",
+          "refresh": 1,
+          "regex": "",
+          "skipUrlSync": false,
+          "type": "datasource"
+        },
+        {
+          "current": {
+            "selected": false,
+            "text": "452961",
+            "value": "452961"
+          },
+          "hide": 0,
+          "label": "",
+          "name": "query",
+          "options": [
+            {
+              "selected": false,
+              "text": "819825",
+              "value": "819825"
+            }
+          ],
+          "query": "452961",
+          "skipUrlSync": false,
+          "type": "textbox"
+        }
+      ]
+    },
+    "time": {
+      "from": "now-6h",
+      "to": "now"
+    },
+    "timepicker": {
+      "hidden": false,
+      "refresh_intervals": [
+        "30"
+      ]
+    },
+    "timezone": "browser",
+    "title": "Amazon Redshift Query Details",
+    "uid": "YCAoJRo7k",
+    "version": 6,
+    "weekStart": "monday"
+  }
