@@ -2,7 +2,7 @@
 
 ### 事前設定
 
-* ~/.pgpass で Redshift のパスワードを設定する。
+* `~/.pgpass` で Amazon Redshift のパスワードを設定する。
 
 ```
 #hostname:port:database:username:password
@@ -19,6 +19,9 @@ PG_PORT=${PG_PORT:-5439}
 ```
 
 ### 実行方法
+
+* 実行手順
+
 ```
 # クエリIDを環境変数にセット
 $ export QUERY_ID=25848324
