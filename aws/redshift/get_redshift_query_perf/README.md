@@ -27,7 +27,7 @@ $ ./get_redshift_query_perf.sh
 ```
 
 * 性能情報を取得した結果は log ディレクトリ以下に出力される。
-    * get_redshift_query_perf_<Timestamp>_<Query ID>.log
+    * `get_redshift_query_perf_<Timestamp>_<Query ID>.log` というファイル名で出力される。
 
 ```
 $ ls -1 log/
