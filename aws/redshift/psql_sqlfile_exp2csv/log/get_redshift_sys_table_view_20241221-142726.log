@@ -1,0 +1,78 @@
+2024-12-21-14:27:26
+\set PROMPT1 '%[%033[1;32m%]%/ %n %`date '+%Y%m%d_%H:%M:%S'` %R%#%[%033[0m%] '
+\set PROMPT2 '%[%033[1;32m%]%R%#%[%033[0m%] '
+\timing on
+Timing is on.
+\set HISTSIZE 1000000
+\pset pager off
+Pager usage is off.
+select version();
+Time: 2.470 ms
+\set PROMPT1 '%[%033[1;32m%]%/ %n %`date '+%Y%m%d_%H:%M:%S'` %R%#%[%033[0m%] '
+\set PROMPT2 '%[%033[1;32m%]%R%#%[%033[0m%] '
+\timing on
+Timing is on.
+\set HISTSIZE 1000000
+\pset pager off
+Pager usage is off.
+set search_path to '$user', public;
+Time: 2.127 ms
+select * from pg_table_def
+where schemaname not in ('pg_catalog')
+order by schemaname, tablename, sortkey;
+Time: 63.157 ms
+\set PROMPT1 '%[%033[1;32m%]%/ %n %`date '+%Y%m%d_%H:%M:%S'` %R%#%[%033[0m%] '
+\set PROMPT2 '%[%033[1;32m%]%R%#%[%033[0m%] '
+\timing on
+Timing is on.
+\set HISTSIZE 1000000
+\pset pager off
+Pager usage is off.
+select * from svv_table_info order by "schema", "table";
+Time: 659.491 ms
+\set PROMPT1 '%[%033[1;32m%]%/ %n %`date '+%Y%m%d_%H:%M:%S'` %R%#%[%033[0m%] '
+\set PROMPT2 '%[%033[1;32m%]%R%#%[%033[0m%] '
+\timing on
+Timing is on.
+\set HISTSIZE 1000000
+\pset pager off
+Pager usage is off.
+select * from sys_query_history order by user_id, generic_query_hash, start_time;
+Time: 284.000 ms
+\set PROMPT1 '%[%033[1;32m%]%/ %n %`date '+%Y%m%d_%H:%M:%S'` %R%#%[%033[0m%] '
+\set PROMPT2 '%[%033[1;32m%]%R%#%[%033[0m%] '
+\timing on
+Timing is on.
+\set HISTSIZE 1000000
+\pset pager off
+Pager usage is off.
+select a.*, b.* from sys_query_detail a, sys_query_explain b, sys_query_history c
+	where  a.query_id = b.query_id
+		and b.plan_node_id = a.plan_node_id
+		and a.query_id = c.query_id
+		and c.elapsed_time > 1000*1000*60*10
+order by a.query_id, a.stream_id, a.segment_id, a.step_id;
+Time: 1782.384 ms (00:01.782)
+\set PROMPT1 '%[%033[1;32m%]%/ %n %`date '+%Y%m%d_%H:%M:%S'` %R%#%[%033[0m%] '
+\set PROMPT2 '%[%033[1;32m%]%R%#%[%033[0m%] '
+\timing on
+Timing is on.
+\set HISTSIZE 1000000
+\pset pager off
+Pager usage is off.
+select a.*, b.xid, b.elapsed, b.starttime, b.endtime, b.aborted, b.source_query, b.concurrency_scaling_status_txt, b.from_sp_call, b.substring
+from svl_query_metrics_summary a,svl_qlog b
+where a.userid = b.userid
+	and a.query = b.query
+	and b.elapsed > 1000*1000*60*10
+order by b.elapsed desc;
+Time: 1170.792 ms (00:01.171)
+\set PROMPT1 '%[%033[1;32m%]%/ %n %`date '+%Y%m%d_%H:%M:%S'` %R%#%[%033[0m%] '
+\set PROMPT2 '%[%033[1;32m%]%R%#%[%033[0m%] '
+\timing on
+Timing is on.
+\set HISTSIZE 1000000
+\pset pager off
+Pager usage is off.
+select * from svl_query_metrics where query_execution_time > 60*10 order by userid, query, dimension;
+Time: 358.898 ms

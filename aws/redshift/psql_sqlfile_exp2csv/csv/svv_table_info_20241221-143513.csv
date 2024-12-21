@@ -1,0 +1,10 @@
+database|schema|table_id|table|encoded|diststyle|sortkey1|max_varchar|sortkey1_enc|sortkey_num|size|pct_used|empty|unsorted|stats_off|tbl_rows|skew_sortkey1|skew_rows|estimated_visible_rows|risk_event|vacuum_sort_benefit|create_time
+tpch_3tb|public|107013|customer|Y, AUTO(ENCODE)|KEY(c_custkey)|c_custkey|117|none                            |1|41259|0.0080|0|0.00|0.00|450000000|3.67|1.00|450000000||0.00|2023-04-04 06:15:05.232319
+tpch_3tb|public|107017|lineitem|Y|KEY(l_orderkey)|l_shipdate|44|none                            |2|863171|0.1685|0|0.00|0.00|18000048306|3.35|1.00|18000048128||0.00|2023-04-04 06:15:06.284186
+tpch_3tb|public|107021|nation|Y, AUTO(ENCODE)|KEY(n_nationkey)|n_nationkey|152|none                            |1|196|0.0000|0|0.00|0.00|25|1.00|100.00|25||0.00|2023-04-04 06:15:07.109666
+tpch_3tb|public|107025|orders|Y, AUTO(ENCODE)|KEY(o_orderkey)|o_orderdate|79|none                            |2|225308|0.0440|0|0.00|0.00|4500000000|5.29|1.00|4499999744||0.00|2023-04-04 06:15:08.0319
+tpch_3tb|public|107029|part|Y, AUTO(ENCODE)|KEY(p_partkey)|p_partkey|55|none                            |1|26960|0.0052|0|0.00|0.00|600000000|1.82|1.00|600000000||0.00|2023-04-04 06:15:08.84188
+tpch_3tb|public|107033|partsupp|Y, AUTO(ENCODE)|KEY(ps_partkey)|ps_partkey|199|none                            |1|161129|0.0314|0|0.00|0.00|2400000000|5.83|1.00|2400000000||0.00|2023-04-04 06:15:09.811679
+tpch_3tb|public|107037|region|Y, AUTO(ENCODE)|KEY(r_regionkey)|r_regionkey|152|none                            |1|60|0.0000|0|0.00|0.00|5|1.00|100.00|5||0.00|2023-04-04 06:15:10.549503
+tpch_3tb|public|107041|supplier|Y, AUTO(ENCODE)|KEY(s_suppkey)|s_suppkey|101|none                            |1|2783|0.0005|0|0.00|0.00|30000000|5.99|1.00|30000000||0.00|2023-04-04 06:15:11.357794
+(8 rows)

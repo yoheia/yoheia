@@ -1,0 +1,64 @@
+SET
+schemaname|tablename|column|type|encoding|distkey|sortkey|notnull
+public|customer|c_name|character varying(25)|lzo|f|0|t
+public|customer|c_address|character varying(40)|lzo|f|0|t
+public|customer|c_nationkey|integer|az64|f|0|t
+public|customer|c_phone|character(15)|lzo|f|0|t
+public|customer|c_acctbal|numeric(12,2)|az64|f|0|t
+public|customer|c_comment|character varying(117)|lzo|f|0|t
+public|customer|c_mktsegment|character(10)|bytedict|f|0|t
+public|customer|c_custkey|bigint|none|t|1|t
+public|lineitem|l_partkey|bigint|az64|f|0|t
+public|lineitem|l_suppkey|integer|az64|f|0|t
+public|lineitem|l_linenumber|integer|az64|f|0|t
+public|lineitem|l_quantity|numeric(12,2)|az64|f|0|t
+public|lineitem|l_extendedprice|numeric(12,2)|az64|f|0|t
+public|lineitem|l_discount|numeric(12,2)|az64|f|0|t
+public|lineitem|l_tax|numeric(12,2)|az64|f|0|t
+public|lineitem|l_returnflag|character(1)|lzo|f|0|t
+public|lineitem|l_linestatus|character(1)|lzo|f|0|t
+public|lineitem|l_commitdate|date|az64|f|0|t
+public|lineitem|l_receiptdate|date|az64|f|0|t
+public|lineitem|l_shipinstruct|character(25)|lzo|f|0|t
+public|lineitem|l_shipmode|character(10)|lzo|f|0|t
+public|lineitem|l_comment|character varying(44)|lzo|f|0|t
+public|lineitem|l_shipdate|date|none|f|1|t
+public|lineitem|l_orderkey|bigint|az64|t|2|t
+public|nation|n_name|character(25)|lzo|f|0|t
+public|nation|n_regionkey|integer|az64|f|0|t
+public|nation|n_comment|character varying(152)|lzo|f|0|t
+public|nation|n_nationkey|integer|none|t|1|t
+public|orders|o_custkey|bigint|az64|f|0|t
+public|orders|o_orderstatus|character(1)|lzo|f|0|t
+public|orders|o_totalprice|numeric(12,2)|az64|f|0|t
+public|orders|o_clerk|character(15)|lzo|f|0|t
+public|orders|o_shippriority|integer|az64|f|0|t
+public|orders|o_comment|character varying(79)|lzo|f|0|t
+public|orders|o_orderpriority|character(15)|bytedict|f|0|t
+public|orders|o_orderdate|date|none|f|1|t
+public|orders|o_orderkey|bigint|az64|t|2|t
+public|part|p_name|character varying(55)|lzo|f|0|t
+public|part|p_size|integer|az64|f|0|t
+public|part|p_retailprice|numeric(12,2)|az64|f|0|t
+public|part|p_comment|character varying(23)|lzo|f|0|t
+public|part|p_type|character varying(25)|bytedict|f|0|t
+public|part|p_brand|character(10)|bytedict|f|0|t
+public|part|p_container|character(10)|bytedict|f|0|t
+public|part|p_mfgr|character(25)|bytedict|f|0|t
+public|part|p_partkey|bigint|none|t|1|t
+public|partsupp|ps_suppkey|integer|az64|f|0|t
+public|partsupp|ps_availqty|integer|az64|f|0|t
+public|partsupp|ps_supplycost|numeric(12,2)|az64|f|0|t
+public|partsupp|ps_comment|character varying(199)|lzo|f|0|t
+public|partsupp|ps_partkey|bigint|none|t|1|t
+public|region|r_name|character(25)|lzo|f|0|t
+public|region|r_comment|character varying(152)|lzo|f|0|t
+public|region|r_regionkey|integer|none|t|1|t
+public|supplier|s_name|character(25)|lzo|f|0|t
+public|supplier|s_address|character varying(40)|lzo|f|0|t
+public|supplier|s_nationkey|integer|az64|f|0|t
+public|supplier|s_phone|character(15)|lzo|f|0|t
+public|supplier|s_acctbal|numeric(12,2)|az64|f|0|t
+public|supplier|s_comment|character varying(101)|lzo|f|0|t
+public|supplier|s_suppkey|integer|none|t|1|t
+(61 rows)
