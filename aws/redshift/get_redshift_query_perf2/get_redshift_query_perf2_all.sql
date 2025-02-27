@@ -82,7 +82,7 @@ select * from SYS_QUERY_HISTORY order by query_id;
 \o csv/all/:current_date/SYS_VACUUM_HISTORY.csv
 select * from SYS_VACUUM_HISTORY order by start_time;
 
--- SYS_VACUUM_HISTORY
+-- SYS_ANALYZE_HISTORY
 \o csv/all/:current_date/SYS_ANALYZE_HISTORY.csv
 select * from SYS_ANALYZE_HISTORY order by start_time;
 
