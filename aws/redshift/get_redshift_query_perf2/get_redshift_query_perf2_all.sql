@@ -78,6 +78,14 @@ select * from SVL_QUERY_SUMMARY order by query, stm, seg, step;
 \o csv/all/:current_date/SYS_QUERY_HISTORY.csv
 select * from SYS_QUERY_HISTORY order by query_id;
 
+-- SYS_VACUUM_HISTORY
+\o csv/all/:current_date/SYS_VACUUM_HISTORY.csv
+select * from SYS_VACUUM_HISTORY order by start_time;
+
+-- SYS_VACUUM_HISTORY
+\o csv/all/:current_date/SYS_ANALYZE_HISTORY.csv
+select * from SYS_ANALYZE_HISTORY order by start_time;
+
 -- SYS_QUERY_DETAIL, SYS_QUERY_EXPLAIN
 \o csv/all/:current_date/SYS_QUERY_DETAIL_SYS_QUERY_EXPLAIN.csv
 select a.*, b.* from sys_query_detail a, sys_query_explain b, sys_query_history c
