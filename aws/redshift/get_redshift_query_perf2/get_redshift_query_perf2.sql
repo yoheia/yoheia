@@ -10,8 +10,24 @@ set enable_result_cache_for_session=off;
 -- show Redshift version
 select version();
 
+\o csv/all/:query_id/STV_WLM_SERVICE_CLASS_CONFIG.csv
+select * from STV_WLM_SERVICE_CLASS_CONFIG;
+
+\o csv/all/:query_id/PG_USER.csv
+select * from PG_USER;
+
+\o csv/all/:query_id/PG_GROUP.csv
+select * from PG_GROUP;
+
 -- set transaction_id to variable
 select xid from stl_query where query = :query_id;
+\gset
+
+-- set sys query id to variable
+select distinct b.query_id as sys_query_id
+	from stl_query a, sys_query_history b
+	where a.xid = b.transaction_id
+		a.query = :query_id;
 \gset
 
 -- execution time
@@ -84,6 +100,20 @@ select a.*, b.* from sys_query_detail a, sys_query_explain b, sys_query_history 
 		and a.query_id = c.query_id
 		and c.transaction_id = :xid;
 order by a.query_id, a.stream_id, a.segment_id, a.step_id;
+
+-- STL_LOAD_COMMITS
+\o csv/:query_id/STL_LOAD_COMMITS.csv
+select * from STL_LOAD_COMMITS where query = :query_id;
+
+-- SYS_LOAD_DETAIL
+/*
+\o csv/:query_id/SYS_LOAD_DETAIL.csv
+select * from sys_load_detail;
+*/
+
+-- STV_SLICES
+\o csv/:query_id/STV_SLICES.csv
+select * from stv_slices;
 
 -- SVV_TABLE_INFO
 \o csv/:query_id/SVV_TABLE_INFO.csv
