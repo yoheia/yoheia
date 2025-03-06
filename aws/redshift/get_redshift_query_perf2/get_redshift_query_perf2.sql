@@ -119,6 +119,15 @@ select * from stv_slices;
 \o csv/:query_id/SVV_TABLE_INFO.csv
 select * from svv_table_info order by "schema", "table";
 
+-- STV_BLOCKLIST
+\o csv/:query_id/STV_BLOCKLIST.csv
+select b.name, b.id, a.slice, count(a.blocknum)
+from stv_blocklist a, stv_tbl_perm b
+where a.tbl = b.id
+and a.slice = b.slice
+group by b.name, b.id, a.slice
+order by b.name, b.id, a.slice;
+
 -- PG_TABLE_DEF
 \o csv/:query_id/PG_TABLE_DEF.csv
 set search_path to '$user', public;
