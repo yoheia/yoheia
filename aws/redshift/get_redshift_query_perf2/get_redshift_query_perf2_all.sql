@@ -5,6 +5,9 @@
 --pager off
 \pset pager
 
+--fetch count
+\set FETCH_COUNT 1000
+
 -- result cache off
 set enable_result_cache_for_session=off;
 
@@ -12,8 +15,17 @@ set enable_result_cache_for_session=off;
 \o csv/all/:current_date/VERSION.csv
 select version();
 
+\o csv/all/:current_date/STV_SLICES.csv
+select * from STV_SLICES;
+
 \o csv/all/:current_date/STV_WLM_SERVICE_CLASS_CONFIG.csv
 select * from STV_WLM_SERVICE_CLASS_CONFIG;
+
+\o csv/all/:current_date/SVV_ALTER_TABLE_RECOMMENDATIONS.csv
+select * from SVV_ALTER_TABLE_RECOMMENDATIONS;
+
+\o csv/all/:current_date/STL_ALERT_EVENT_LOG.csv
+select * from STL_ALERT_EVENT_LOG;
 
 \o csv/all/:current_date/PG_USER.csv
 select * from PG_USER;
@@ -22,7 +34,7 @@ select * from PG_USER;
 select * from PG_GROUP;
 
 -- execution time
-\o csv/all/:current_date/STL_QUERY.csv
+\o csv/all/:current_date/STL_QUERY_duration.csv
 select userid,
 		trim(database) "database",
 		trim(label) as label,
@@ -39,8 +51,12 @@ select userid,
 	from STL_QUERY
 	order by query;
 
+-- STL_QUERY
+\o csv/all/:current_date/STL_QUERY.csv
+select * from STL_QUERY;
+
 -- show execution plan
-\o csv/all/:current_date/SVL_QUERY_SUMMARY.csv
+\o csv/all/:current_date/SVL_QUERY_SUMMARY_execplan.csv
 select query,
 		stm, 
 		seg, 
@@ -58,6 +74,10 @@ select query,
 	from svl_query_summary
 	order by query, stm, seg, step;
 
+-- SVL_QUERY_SUMMARY
+\o csv/all/:current_date/SVL_QUERY_SUMMARY.csv
+select * from SVL_QUERY_SUMMARY order by query, stm, seg, step;
+
 -- SVL_QUERY_METRICS
 \o csv/all/:current_date/SVL_QUERY_METRICS.csv
 select * from SVL_QUERY_METRICS order by query, dimension, segment, step;
@@ -69,10 +89,6 @@ select * from STL_WLM_QUERY order by service_class, query;
 -- SVL_QUERY_METRICS_SUMMARY
 \o csv/all/:current_date/SVL_QUERY_METRICS_SUMMARY.csv
 select * from SVL_QUERY_METRICS_SUMMARY order by query;
-
--- SVL_QUERY_SUMMARY
-\o csv/all/:current_date/SVL_QUERY_SUMMARY.csv
-select * from SVL_QUERY_SUMMARY order by query, stm, seg, step;
 
 -- SYS_QUERY_HISTORY
 \o csv/all/:current_date/SYS_QUERY_HISTORY.csv
@@ -112,5 +128,17 @@ select * from SYS_QUERY_DETAIL order by query_id, child_query_sequence, stream_i
 -- SVL_QUERY_REPORT
 \o csv/all/:current_date/SVL_QUERY_REPORT.csv
 select * from SVL_QUERY_REPORT order by query, segment, step, slice;
+
+-- STL_SORT
+\o csv/all/:current_date/STL_SORT.csv
+select * from STL_SORT order by query, segment, step, slice;
+
+-- STL_DIST
+\o csv/all/:current_date/STL_DIST.csv
+select * from STL_DIST order by query, segment, step, slice;
+
+-- STL_BCAST
+\o csv/all/:current_date/STL_BCAST.csv
+select * from STL_BCAST order by query, segment, step, slice;
 
 \q

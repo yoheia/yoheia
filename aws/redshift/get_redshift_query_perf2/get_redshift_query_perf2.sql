@@ -4,6 +4,9 @@
 --pager off
 \pset pager
 
+--fetch count
+\set FETCH_COUNT 1000
+
 -- result cache off
 set enable_result_cache_for_session=off;
 
