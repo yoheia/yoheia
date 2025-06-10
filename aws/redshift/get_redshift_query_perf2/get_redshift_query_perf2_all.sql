@@ -141,4 +141,21 @@ select * from STL_DIST order by query, segment, step, slice;
 \o csv/all/:current_date/STL_BCAST.csv
 select * from STL_BCAST order by query, segment, step, slice;
 
+-- STL_LOAD_COMMITS
+\o csv/all/:current_date/STL_LOAD_COMMITS.csv
+select * from STL_LOAD_COMMITS;
+
+-- SYS_LOAD_DETAIL
+\o csv/all/:current_date/SYS_LOAD_DETAIL.csv
+select * from SYS_LOAD_DETAIL;
+
+-- STV_BLOCKLIST
+\o csv/all/:current_date/STV_BLOCKLIST.csv
+select b.name, b.id, a.slice, count(a.blocknum)
+from STV_BLOCKLIST a, stv_tbl_perm b
+where a.tbl = b.id
+and a.slice = b.slice
+group by b.name, b.id, a.slice
+order by b.name, b.id, a.slice;
+
 \q
