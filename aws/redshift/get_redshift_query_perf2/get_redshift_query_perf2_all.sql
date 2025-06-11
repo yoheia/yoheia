@@ -25,7 +25,7 @@ select * from STV_WLM_SERVICE_CLASS_CONFIG;
 select * from SVV_ALTER_TABLE_RECOMMENDATIONS;
 
 \o csv/all/:current_date/STL_ALERT_EVENT_LOG.csv
-select * from STL_ALERT_EVENT_LOG;
+select * from STL_ALERT_EVENT_LOG where event_time > dateadd(hour,-16, sysdate);
 
 \o csv/all/:current_date/PG_USER.csv
 select * from PG_USER;
@@ -127,7 +127,7 @@ select * from SYS_QUERY_DETAIL order by query_id, child_query_sequence, stream_i
 
 -- SVL_QUERY_REPORT
 \o csv/all/:current_date/SVL_QUERY_REPORT.csv
-select * from SVL_QUERY_REPORT order by query, segment, step, slice;
+select * from SVL_QUERY_REPORT where start_time > dateadd(hour,-16, sysdate) order by query, segment, step, slice;
 
 -- STL_SORT
 \o csv/all/:current_date/STL_SORT.csv
