@@ -131,15 +131,15 @@ select * from SVL_QUERY_REPORT where start_time > dateadd(hour,-16, sysdate) ord
 
 -- STL_SORT
 \o csv/all/:current_date/STL_SORT.csv
-select * from STL_SORT order by query, segment, step, slice;
+select * from STL_SORT where starttime > dateadd(hour,-16, sysdate) order by query, segment, step, slice;
 
 -- STL_DIST
 \o csv/all/:current_date/STL_DIST.csv
-select * from STL_DIST order by query, segment, step, slice;
+select * from STL_DIST where starttime > dateadd(hour,-16, sysdate) order by query, segment, step, slice;
 
 -- STL_BCAST
 \o csv/all/:current_date/STL_BCAST.csv
-select * from STL_BCAST order by query, segment, step, slice;
+select * from STL_BCAST where starttime > dateadd(hour,-16, sysdate) order by query, segment, step, slice;
 
 -- STL_LOAD_COMMITS
 \o csv/all/:current_date/STL_LOAD_COMMITS.csv
