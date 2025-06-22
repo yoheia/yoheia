@@ -24,6 +24,9 @@ select * from STV_WLM_SERVICE_CLASS_CONFIG;
 \o csv/all/:current_date/SVV_ALTER_TABLE_RECOMMENDATIONS.csv
 select * from SVV_ALTER_TABLE_RECOMMENDATIONS;
 
+\o csv/all/:current_date/SVL_AUTO_WORKER_ACTION.csv
+select * from SVL_AUTO_WORKER_ACTION;
+
 \o csv/all/:current_date/STL_ALERT_EVENT_LOG.csv
 select * from STL_ALERT_EVENT_LOG where event_time > dateadd(hour,-16, sysdate);
 
@@ -102,14 +105,6 @@ select * from SYS_VACUUM_HISTORY order by start_time;
 \o csv/all/:current_date/SYS_ANALYZE_HISTORY.csv
 select * from SYS_ANALYZE_HISTORY order by start_time;
 
--- SYS_QUERY_DETAIL, SYS_QUERY_EXPLAIN
-\o csv/all/:current_date/SYS_QUERY_DETAIL_SYS_QUERY_EXPLAIN.csv
-select a.*, b.* from sys_query_detail a, sys_query_explain b, sys_query_history c
-	where  a.query_id = b.query_id
-		and b.plan_node_id = a.plan_node_id
-		and a.query_id = c.query_id
-order by a.query_id, a.stream_id, a.segment_id, a.step_id;
-
 -- SVV_TABLE_INFO
 \o csv/all/:current_date/SVV_TABLE_INFO.csv
 select * from svv_table_info order by "schema", "table";
@@ -120,6 +115,10 @@ set search_path to '$user', public;
 select * from pg_table_def
 where schemaname not in ('pg_catalog')
 order by schemaname, tablename, sortkey;
+
+-- SYS_QUERY_EXPLAIN
+\o csv/all/:current_date/SYS_QUERY_EXPLAIN.csv
+select * from SYS_QUERY_EXPLAIN order by query_id, child_query_sequence, plan_node_id;
 
 -- SYS_QUERY_DETAIL
 \o csv/all/:current_date/SYS_QUERY_DETAIL.csv
