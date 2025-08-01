@@ -148,6 +148,10 @@ select * from STL_LOAD_COMMITS;
 \o csv/all/:current_date/SYS_LOAD_DETAIL.csv
 select * from SYS_LOAD_DETAIL;
 
+-- SYS_LOAD_HISTORY
+\o csv/all/:current_date/SYS_LOAD_HISTORY.csv
+select * from SYS_LOAD_HISTORY;
+
 -- STV_BLOCKLIST
 \o csv/all/:current_date/STV_BLOCKLIST.csv
 select b.name, b.id, a.slice, count(a.blocknum)
