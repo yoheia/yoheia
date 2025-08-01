@@ -144,6 +144,10 @@ select * from STL_BCAST where starttime > dateadd(hour,-16, sysdate) order by qu
 \o csv/all/:current_date/STL_LOAD_COMMITS.csv
 select * from STL_LOAD_COMMITS;
 
+-- STL_COMMIT_STATS
+\o csv/all/:current_date/STL_COMMIT_STATS.csv
+select * from STL_COMMIT_STATS;
+
 -- SYS_LOAD_DETAIL
 \o csv/all/:current_date/SYS_LOAD_DETAIL.csv
 select * from SYS_LOAD_DETAIL;
