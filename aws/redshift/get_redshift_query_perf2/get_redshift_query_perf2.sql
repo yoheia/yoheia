@@ -13,13 +13,13 @@ set enable_result_cache_for_session=off;
 -- show Redshift version
 select version();
 
-\o csv/all/:query_id/STV_WLM_SERVICE_CLASS_CONFIG.csv
+\o csv/:query_id/STV_WLM_SERVICE_CLASS_CONFIG.csv
 select * from STV_WLM_SERVICE_CLASS_CONFIG;
 
-\o csv/all/:query_id/PG_USER.csv
+\o csv/:query_id/PG_USER.csv
 select * from PG_USER;
 
-\o csv/all/:query_id/PG_GROUP.csv
+\o csv/:query_id/PG_GROUP.csv
 select * from PG_GROUP;
 
 -- set transaction_id to variable
@@ -30,7 +30,7 @@ select xid from stl_query where query = :query_id;
 select distinct b.query_id as sys_query_id
 	from stl_query a, sys_query_history b
 	where a.xid = b.transaction_id
-		a.query = :query_id;
+		and a.query = :query_id;
 \gset
 
 -- execution time
@@ -101,8 +101,19 @@ select a.*, b.* from sys_query_detail a, sys_query_explain b, sys_query_history 
 	where  a.query_id = b.query_id
 		and b.plan_node_id = a.plan_node_id
 		and a.query_id = c.query_id
-		and c.transaction_id = :xid;
+		and c.transaction_id = :xid
 order by a.query_id, a.stream_id, a.segment_id, a.step_id;
+
+-- SYS_QUERY_EXPLAIN
+\o csv/:query_id/SYS_QUERY_EXPLAIN.csv
+select * from SYS_QUERY_EXPLAIN where query_id = :sys_query_id
+order by query_id, child_query_sequence, plan_node_id;
+
+-- SYS_QUERY_DETAIL
+\o csv/:query_id/SYS_QUERY_DETAIL.csv
+select * from SYS_QUERY_DETAIL where query_id = :sys_query_id
+order by query_id, child_query_sequence, stream_id, segment_id, step_id;
+
 
 -- STL_LOAD_COMMITS
 \o csv/:query_id/STL_LOAD_COMMITS.csv
